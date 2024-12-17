@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Budget = sequelize.define("Budget", {
+    const UserIngredient = sequelize.define("UserIngredient", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -13,11 +13,23 @@ module.exports = (sequelize, DataTypes) => {
                 key: "id",
             },
         },
-        amount: {
+        ingredient_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "Ingredients",
+                key: "id",
+            },
+        },
+        quantity: {
             type: DataTypes.FLOAT,
             allowNull: false,
         },
+        unit: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     });
 
-    return Budget;
+    return UserIngredient;
 };

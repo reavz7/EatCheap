@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Ingredients = sequelize.define("Ingredients", {
+    const Ingredient = sequelize.define("Ingredient", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -14,14 +14,18 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.FLOAT,
             allowNull: false,
         },
+        unit: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     });
 
-    Ingredients.associate = (models) => {
-        Ingredients.belongsToMany(models.Recipes, {
-            through: "RecipeIngredients",
-            foreignKey: "ingredientId",
+    Ingredient.associate = (models) => {
+        Ingredient.belongsToMany(models.Recipe, {
+            through: "RecipeIngredient",
+            foreignKey: "ingredient_id",
         });
     };
 
-    return Ingredients;
+    return Ingredient;
 };
