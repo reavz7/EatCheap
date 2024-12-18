@@ -1,30 +1,39 @@
 module.exports = (sequelize, DataTypes) => {
-    const Recipe = sequelize.define("Recipe", {
+    const Recipes = sequelize.define("Recipes", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
         name: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING,
             allowNull: false,
-        },
-        description: {
-            type: DataTypes.TEXT,
-            allowNull: true,
+            unique: true,
         },
         instructions: {
             type: DataTypes.TEXT,
-            allowNull: true,
+            allowNull: false,
+        },
+        isVegan: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        isVegetarian: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        isGlutenFree: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
         },
     });
 
-    Recipe.associate = (models) => {
-        Recipe.belongsToMany(models.Ingredient, {
+    Recipes.associate = (models) => {
+        Recipes.belongsToMany(models.Ingredients, {
             through: "RecipeIngredient",
-            foreignKey: "recipe_id",
+            foreignKey: "recipeId",
         });
     };
 
-    return Recipe;
+    return Recipes;
 };
