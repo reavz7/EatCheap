@@ -1,12 +1,13 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const db = require('./models');
 
-app.use(express.json())
-const db = require('./models')
+// Middleware
+app.use(express.json()); // Parsowanie JSON
+app.use("/users", require('./routes/Users')); // Użycie routingu
 
-// Routers
-
-db.sequelize.sync({ alter: true }).then(() => {
+db.sequelize.sync({}).then(() => {
     app.listen(5000, () => {
         console.log("Server running on port 5000");
     });
