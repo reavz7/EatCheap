@@ -8,7 +8,11 @@ app.use(cors());
 
 // Middleware
 app.use(express.json()); // Parsowanie JSON
+
 app.use("/users", require('./routes/Users')); // Użycie routingu
+app.use("/recipes", require('./routes/Recipes')); // Routing dla przepisów
+
+
 
 db.sequelize.sync({}).then(() => {
     app.listen(5000, () => {
