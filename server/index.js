@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
 const db = require('./models');
+const cors =  require('cors');
 
 
+app.use(cors());
 
 // Middleware
 app.use(express.json()); // Parsowanie JSON
