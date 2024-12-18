@@ -1,7 +1,10 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
+require('dotenv').config();
 
 
 // Pobranie wszystkich użytkowników (bez hasła)
@@ -102,7 +105,7 @@ const verifyToken = (req, res, next) => {
         req.userId = decoded.id;
         next();
     } catch (error) {
-        res.status(401).json({ error: "Nieprawidłowy token, autoryzacja nie powiodła się" });
+        res.status(401).json({ error: error  });
     }
 };
 
