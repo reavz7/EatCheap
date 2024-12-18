@@ -17,18 +17,12 @@ module.exports = (sequelize, DataTypes) => {
             unique: true,
         },
         password: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(60),
             allowNull: false,
         }   
     }, {
         timestamps: false,
-        hooks: {
-            beforeCreate: async (user, options) => {
-                if (user.password) {
-                    user.password = await bcrypt.hash(user.password, 10);
-                }
-            }
-        }
+       
     });
 
     User.associate = (models) => {

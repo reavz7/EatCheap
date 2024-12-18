@@ -3,6 +3,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const db = require('./models');
 
+
+
 // Middleware
 app.use(express.json()); // Parsowanie JSON
 app.use("/users", require('./routes/Users')); // Użycie routingu
