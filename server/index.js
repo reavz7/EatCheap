@@ -11,6 +11,7 @@ app.use(express.json()); // Parsowanie JSON
 
 app.use("/users", require('./routes/Users')); // Użycie routingu
 app.use("/recipes", require('./routes/Recipes')); // Routing dla przepisów
+app.use("/ingredients",require('./routes/Ingredients'))
 
 
 

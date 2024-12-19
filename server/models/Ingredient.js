@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     const Ingredient = sequelize.define("Ingredient", {
         id: {
             type: DataTypes.INTEGER,
-            autoIncrement: true,
+            autoIncrement: true,    
             primaryKey: true,
         },
         name: {
