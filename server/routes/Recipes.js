@@ -37,4 +37,37 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Aktualizacja przepisu 
+
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, description, instructions, isVegan, isVegetarian, isGlutenFree } = req.body;
+
+    try {
+        const recipe = await Recipe.findByPk(id); // Poprawiona nazwa metody
+        if (!recipe) {
+            return res.status(404).json({ error: "Przepis nie został znaleziony" });
+        }
+        
+        // Aktualizacja przepisu
+        const updatedRecipe = await recipe.update({
+            name: name || recipe.name,
+            description: description || recipe.description,
+            instructions: instructions || recipe.instructions,
+            isVegan: isVegan !== undefined ? isVegan : recipe.isVegan,
+            isVegetarian: isVegetarian !== undefined ? isVegetarian : recipe.isVegetarian,
+            isGlutenFree: isGlutenFree !== undefined ? isGlutenFree : recipe.isGlutenFree,
+        });
+
+        res.json({
+            message: `Przepis na ${updatedRecipe.name} został pomyślnie zaktualizowany!`,
+            recipe: updatedRecipe, // Poprawiona nazwa obiektu
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: "Błąd podczas aktualizowania danych przepisu",
+            details: error.message,
+        });
+    }
+});
 module.exports = router;
