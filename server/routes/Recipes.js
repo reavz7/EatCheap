@@ -60,7 +60,7 @@ router.put('/:id', async (req, res) => {
         });
 
         res.json({
-            message: `Przepis na ${updatedRecipe.name} został pomyślnie zaktualizowany!`,
+            message: `Przepis na ${name} został pomyślnie zaktualizowany!`,
             recipe: updatedRecipe, // Poprawiona nazwa obiektu
         });
     } catch (error) {
