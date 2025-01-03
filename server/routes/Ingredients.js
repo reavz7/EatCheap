@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { Ingredient } = require('../models');
+const { Op } = require('sequelize'); // import z sequelize biblioteki (to jest cos takiego jak w SQL like po prostu, i bedzie tu potrzebne)
 
+
+// Wszystkie przepisy
 router.get('/', async(req, res)=>{
     try{
         const allIngredients = await Ingredient.findAll();
@@ -10,7 +13,8 @@ router.get('/', async(req, res)=>{
     catch(error){
         res.status(500).json({error: "Błąd pobierania danych", details: error.message})
     }
-})
+})  
+// Przepis po ID
 router.get('/:id', async(req, res)=>{
     const ingredientId = req.params.id;
     
@@ -25,6 +29,86 @@ router.get('/:id', async(req, res)=>{
     catch(error){
         res.status(500).json({error: "Błąd pobierania danych", details: error.message})
     }
-})
+})  
+
+// Dodanie nowego składnika
+router.post('/', async (req, res) => {
+    const { name, price, unit } = req.body;
+
+    if (!name || !price) {
+        return res.status(400).json({ error: "Nazwa i cena są wymagane!" });
+    }
+
+    try {
+        const newIngredient = await Ingredient.create({ name, price, unit });
+        res.status(201).json({ message: "Składnik dodany pomyślnie", ingredient: newIngredient });
+    } catch (error) {
+        res.status(500).json({ error: "Błąd podczas dodawania składnika", details: error.message });
+    }
+});
+
+// Aktualizacja istniejącego skladnika
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, price, unit } = req.body;
+
+    try {
+        const ingredient = await Ingredient.findByPk(id);
+        if (!ingredient) {
+            return res.status(404).json({ error: "Składnik nie znaleziony" });
+        }
+
+        const updatedIngredient = await ingredient.update({
+            name: name || ingredient.name,
+            price: price !== undefined ? price : ingredient.price,
+            unit: unit || ingredient.unit,
+        });
+
+        res.json({ message: "Składnik zaktualizowany pomyślnie", ingredient: updatedIngredient });
+    } catch (error) {
+        res.status(500).json({ error: "Błąd podczas aktualizowania składnika", details: error.message });
+    }
+});
+
+// Usuwanie istniejacego skladnika
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const ingredient = await Ingredient.findByPk(id);
+        if (!ingredient) {
+            return res.status(404).json({ error: "Składnik nie znaleziony" });
+        }
+
+        await ingredient.destroy();
+        res.json({ message: "Składnik usunięty pomyślnie" });
+    } catch (error) {
+        res.status(500).json({ error: "Błąd podczas usuwania składnika", details: error.message });
+    }
+}); 
+
+// WYSZUKANIE SKLADNIKOW PO NAZWIE
+
+router.get('/search', async (req, res) => {
+    const { name } = req.query;
+
+    try {
+        const ingredients = await Ingredient.findAll({
+            where: {
+                name: { [Op.like]: `%${name}%` },
+            },
+        });
+
+        if (ingredients.length === 0) {
+            return res.status(404).json({ error: "Nie znaleziono składników" });
+        }
+
+        res.json(ingredients);
+    } catch (error) {
+        res.status(500).json({ error: "Błąd podczas wyszukiwania składników", details: error.message });
+    }
+});
+
+
 
 module.exports = router;
