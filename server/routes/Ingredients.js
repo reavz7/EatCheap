@@ -4,7 +4,7 @@ const { Ingredient } = require('../models');
 const { Op } = require('sequelize'); // import z sequelize biblioteki (to jest cos takiego jak w SQL like po prostu, i bedzie tu potrzebne)
 
 
-// Wszystkie przepisy
+// Wszystkie składniki
 router.get('/', async(req, res)=>{
     try{
         const allIngredients = await Ingredient.findAll();
@@ -14,22 +14,23 @@ router.get('/', async(req, res)=>{
         res.status(500).json({error: "Błąd pobierania danych", details: error.message})
     }
 })  
-// Przepis po ID
-router.get('/:id', async(req, res)=>{
+// Składnik po ID
+router.get('/:id', async (req, res) => {
     const ingredientId = req.params.id;
-    
-    try{    
-        const ingredient = await Ingredient.findByPk(ingredientId, {
-            attributes: {}  
-        });
-       if(!ingredient){
-        return res.status(404).json({ error: "Dodatek nie znaleziony" });
-       }
+
+    try {
+        const ingredient = await Ingredient.findByPk(ingredientId);
+
+        if (!ingredient) {
+            return res.status(404).json({ error: "Dodatek nie znaleziony" });
+        }
+
+        // Zwróć znaleziony składnik
+        res.json(ingredient);
+    } catch (error) {
+        res.status(500).json({ error: "Błąd pobierania danych", details: error.message });
     }
-    catch(error){
-        res.status(500).json({error: "Błąd pobierania danych", details: error.message})
-    }
-})  
+});
 
 // Dodanie nowego składnika
 router.post('/', async (req, res) => {
@@ -81,7 +82,7 @@ router.delete('/:id', async (req, res) => {
         }
 
         await ingredient.destroy();
-        res.json({ message: "Składnik usunięty pomyślnie" });
+        res.json({ message: "Składnik usunięty pomyślnie: " + ingredient.name });
     } catch (error) {
         res.status(500).json({ error: "Błąd podczas usuwania składnika", details: error.message });
     }
