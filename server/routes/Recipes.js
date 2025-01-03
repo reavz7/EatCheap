@@ -12,6 +12,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/search', async (req, res) => {
+    const { isVegan, isVegetarian, isGlutenFree } = req.query;
+
+    try {
+        const filters = {};
+
+        if (isVegan !== undefined) filters.isVegan = isVegan === 'true';
+        if (isVegetarian !== undefined) filters.isVegetarian = isVegetarian === 'true';
+        if (isGlutenFree !== undefined) filters.isGlutenFree = isGlutenFree === 'true';
+
+        const filteredRecipes = await Recipe.findAll({
+            where: filters,
+        });
+
+        res.json(filteredRecipes);
+    } catch (error) {
+        res.status(500).json({ error: 'Błąd podczas filtrowania przepisów', details: error.message });
+    }
+});
+
+// Pobranie pojedynczego przepisu po ID
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const recipe = await Recipe.findByPk(id);
+
+        if (!recipe) {
+            return res.status(404).json({ error: 'Przepis nie został znaleziony' });
+        }
+
+        res.json(recipe);
+    } catch (error) {
+        res.status(500).json({ error: 'Błąd podczas pobierania przepisu', details: error.message });
+    }
+});
+
 // Tworzenie nowego przepisu
 router.post('/', async (req, res) => {
     const { name, description, instructions, isVegan, isVegetarian, isGlutenFree } = req.body;
@@ -70,4 +107,29 @@ router.put('/:id', async (req, res) => {
         });
     }
 });
+
+// Usuwanie przepisu
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const recipe = await Recipe.findByPk(id);
+
+        if (!recipe) {
+            return res.status(404).json({ error: 'Przepis nie został znaleziony' });
+        }
+
+        await recipe.destroy();
+
+        res.json({ message: `Przepis został pomyślnie usunięty!` });
+    } catch (error) {
+        res.status(500).json({
+            error: 'Błąd podczas usuwania przepisu',
+            details: error.message,
+        });
+    }
+});
+
+// Filtrowanie przepisów po atrybutach
+
 module.exports = router;
