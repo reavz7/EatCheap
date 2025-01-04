@@ -31,5 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
 
+    RecipeIngredient.associate = (models) => {
+        RecipeIngredient.belongsTo(models.Ingredient, {
+            foreignKey: 'ingredient_id',
+        });
+    };
+
     return RecipeIngredient;
 };
