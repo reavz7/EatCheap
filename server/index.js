@@ -17,7 +17,6 @@ app.use("/budgets", require('./routes/Budgets'))
 app.use("/useringredients", require('./routes/UserIngredients'))
 
 
-
 db.sequelize.sync({}).then(() => {
     app.listen(5000, () => {
         console.log("Server running on port 5000");
