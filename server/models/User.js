@@ -34,5 +34,13 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
+     // Dodanie hooka afterCreate
+     User.afterCreate(async (user) => {
+        const { Budget } = sequelize.models; // Pobranie modelu Budget z instancji Sequelize
+        await Budget.create({
+            user_id: user.id,
+            amount: 0, // Ustawienie domyślnej wartości budżetu na 0
+        });
+    });
     return User;
 };
