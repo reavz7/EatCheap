@@ -34,12 +34,13 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
-     // Dodanie hooka afterCreate
+     // Przy tworzeniu usera tworze mu od razu budzet aby nie musial on tego robic pozniej sam,
+     //zatem budzet bedzie juz tylko aktualizowany od tego momentu przez samego uzytkownika
      User.afterCreate(async (user) => {
-        const { Budget } = sequelize.models; // Pobranie modelu Budget z instancji Sequelize
+        const { Budget } = sequelize.models; 
         await Budget.create({
             user_id: user.id,
-            amount: 0, // Ustawienie domyślnej wartości budżetu na 0
+            amount: 0, 
         });
     });
     return User;

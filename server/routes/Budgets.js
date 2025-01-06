@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {Budget, User} = require('../models');
+const {Budget} = require('../models');
 
 // Pobranie budżetu użytkownika
 router.get('/:userId', async (req, res) => {
