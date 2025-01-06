@@ -16,12 +16,16 @@ const verifyToken = (req, res, next) => {
     try {
         const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
         console.log("Decoded JWT payload:", decoded);
-        req.userId = decoded.id; 
+
+        if (req.params.userId && parseInt(req.params.userId) !== decoded.id) {
+            return res.status(403).json({ error: "Brak uprawnień do tej operacji" });
+        }
+
+        req.userId = decoded.id;
         next();
     } catch (error) {
         console.error("JWT verification error:", error.message);
         res.status(401).json({ error: "Nieprawidłowy token" });
     }
 };
-
 module.exports = verifyToken;
