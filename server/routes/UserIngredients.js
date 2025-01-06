@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { UserIngredient } = require('../models');
 
+
 // Pobranie wszystkich składników użytkownika
 router.get('/', async (req, res) => {
     const userId = req.userId; 
