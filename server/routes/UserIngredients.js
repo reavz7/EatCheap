@@ -12,7 +12,7 @@ router.get('/', verifyToken, async (req, res) => {
         res.json(userIngredients);
     } catch (error) {
         res.status(500).json({ error: "Błąd podczas pobierania składników", details: error.message });
-    }
+    }   
 });
 
 // Dodanie nowego składnika dla użytkownika (np. dodanie składnika do bazy)
