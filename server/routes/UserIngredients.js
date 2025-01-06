@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { UserIngredient } = require('../models');
-const verifyToken = require('../middleware/verifyToken'); // Import funkcji verifyToken
+const verifyToken = require('../middleware/verifyToken'); 
 
 // Pobranie wszystkich składników użytkownika
 router.get('/', verifyToken, async (req, res) => {
