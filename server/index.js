@@ -15,6 +15,7 @@ app.use("/ingredients",require('./routes/Ingredients'))
 app.use("/recipeingredients",require('./routes/RecipeIngredients'))
 app.use("/budgets", require('./routes/Budgets'))
 app.use("/useringredients", require('./routes/UserIngredients'))
+app.use("/suggestions", require('./routes/suggestions'))
 
 
 db.sequelize.sync({}).then(() => {
