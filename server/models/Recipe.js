@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,
-        },  
+        },
         description: {
             type: DataTypes.TEXT,
             allowNull: true,
@@ -33,8 +33,9 @@ module.exports = (sequelize, DataTypes) => {
 
     Recipe.associate = (models) => {
         Recipe.belongsToMany(models.Ingredient, {
-            through: "RecipeIngredient",
+            through: models.RecipeIngredient,
             foreignKey: "recipe_id",
+            as: "Ingredients",
         });
     };
 

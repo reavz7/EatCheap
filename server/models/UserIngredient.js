@@ -31,5 +31,12 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
 
+    UserIngredient.associate = (models) => {
+        UserIngredient.belongsTo(models.Ingredient, {
+            foreignKey: "ingredient_id",
+            as: "ingredient",
+        });
+    };
+
     return UserIngredient;
 };

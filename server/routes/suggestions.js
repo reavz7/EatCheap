@@ -1,91 +1,67 @@
 const express = require('express');
 const router = express.Router();
-const { Recipe, Ingredient, UserIngredient, Budget, RecipeIngredient } = require('../models');
+const { Recipe, Ingredient, UserIngredient, RecipeIngredient } = require('../models');
 const verifyToken = require('../middleware/verifyToken');
+const { convertUnits } = require('../utils/unitConversion');
 
 // Sugestia przepisów
 router.get('/', verifyToken, async (req, res) => {
     const { userId } = req;
 
-    try {       
-        // 1. Pobierz składniki użytkownika
+    try {
+        // Pobierz składniki użytkownika
         const userIngredients = await UserIngredient.findAll({
             where: { user_id: userId },
-            include: { 
-                model: Ingredient, 
-                as: 'ingredient' // Alias 'ingredient' dla Ingredients
+            include: {
+                model: Ingredient,
+                as: 'ingredient',
             },
         });
 
-        // 2. Pobierz budżet użytkownika
-        const budget = await Budget.findOne({ where: { user_id: userId } });
-        if (!budget) {
-            return res.status(404).json({ error: "Budżet użytkownika nie został znaleziony." });
-        }
-
-        // 3. Pobierz wszystkie przepisy i ich składniki
+        // Pobierz przepisy i ich wymagane składniki
         const recipes = await Recipe.findAll({
             include: {
                 model: Ingredient,
                 through: { model: RecipeIngredient },
-                as: 'Ingredients' // Alias 'Ingredients' w związku z RecipeIngredient
+                as: 'Ingredients', // alias dla powiązania z RecipeIngredient
             },
         });
 
-        // 4. Analizuj przepisy
         const suggestions = [];
 
+        // Sprawdź każdy przepis
         for (const recipe of recipes) {
             let isPossible = true;
-            let extraCost = 0;
-            const missingIngredients = [];
 
+            // Sprawdź składniki przepisu
             for (const recipeIngredient of recipe.Ingredients) {
                 const userIngredient = userIngredients.find(
-                    (ui) => ui.ingredient.id === recipeIngredient.id
+                    (ui) => ui.ingredient_id === recipeIngredient.id
                 );
 
-                // Sprawdź, czy użytkownik ma wymagany składnik
                 if (userIngredient) {
-                    // Konwersja jednostek
+                    // Użytkownik ma składnik - konwersja jednostek
                     const userQuantity =
-                        userIngredient.ingredient.unit === recipeIngredient.unit
-                            ? userIngredient.ingredient.quantity
-                            : convertUnits(userIngredient.ingredient.quantity, userIngredient.ingredient.unit, recipeIngredient.unit);
+                        userIngredient.unit === recipeIngredient.unit
+                            ? userIngredient.quantity // Jednostki są takie same
+                            : convertUnits(userIngredient.quantity, userIngredient.unit, recipeIngredient.unit); // Konwersja jednostek
 
                     if (userQuantity < recipeIngredient.RecipeIngredient.quantity) {
-                        isPossible = false;
-                        missingIngredients.push({
-                            ingredient: recipeIngredient.name,
-                            needed: recipeIngredient.RecipeIngredient.quantity - userQuantity,
-                            unit: recipeIngredient.unit,
-                        });
+                        isPossible = false; // Ilość niewystarczająca
+                        break;
                     }
                 } else {
-                    // Składnik brakujący, sprawdzamy cenę
-                    isPossible = false;
-                    const ingredientPrice = recipeIngredient.price;
-                    const neededQuantity = recipeIngredient.RecipeIngredient.quantity;
-
-                    extraCost += ingredientPrice * neededQuantity;
-                    missingIngredients.push({
-                        ingredient: recipeIngredient.name,
-                        needed: neededQuantity,
-                        unit: recipeIngredient.unit,
-                        price: ingredientPrice * neededQuantity,
-                    });
+                    isPossible = false; // Brakuje składnika
+                    break;
                 }
             }
 
-            // Jeśli przepis jest możliwy lub braki mieszczą się w budżecie, dodaj go do sugestii
-            if (isPossible || extraCost <= budget.amount) {
+            // Dodaj przepis do sugestii, jeśli możliwy
+            if (isPossible) {
                 suggestions.push({
-                    recipe: recipe.name,
+                    recipeName: recipe.name,
                     description: recipe.description,
                     instructions: recipe.instructions,
-                    missingIngredients,
-                    totalExtraCost: extraCost,
-                    canAfford: extraCost <= budget.amount,
                 });
             }
         }
@@ -95,21 +71,5 @@ router.get('/', verifyToken, async (req, res) => {
         res.status(500).json({ error: "Błąd podczas analizy przepisów", details: error.message });
     }
 });
-
-// Funkcja konwersji jednostek
-function convertUnits(quantity, fromUnit, toUnit) {
-    const conversionRates = {
-        kg: 1000, // kg na g
-        g: 1,
-        l: 1000, // l na ml
-        ml: 1,
-    };
-
-    if (!conversionRates[fromUnit] || !conversionRates[toUnit]) {
-        throw new Error(`Nieznana jednostka: ${fromUnit} lub ${toUnit}`);
-    }
-
-    return (quantity * conversionRates[fromUnit]) / conversionRates[toUnit];
-}
 
 module.exports = router;

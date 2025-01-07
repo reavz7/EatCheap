@@ -10,9 +10,13 @@ router.get('/:recipeId', async (req, res) => {
         const ingredients = await RecipeIngredient.findAll({
             where: { recipe_id: recipeId },
             include: [
-                { model: Ingredient, attributes: ['name', 'price', 'unit'] },
+                {
+                    model: Ingredient,
+                    as: "ingredient", // Dodano alias, zgodnie z modelem Ingredient
+                    attributes: ['name', 'price', 'unit'],
+                },
             ],
-        });     
+        });
 
         if (ingredients.length === 0) {
             return res.status(404).json({ error: 'Brak składników dla tego przepisu' });
@@ -20,9 +24,13 @@ router.get('/:recipeId', async (req, res) => {
 
         res.json(ingredients);
     } catch (error) {
-        res.status(500).json({ error: 'Błąd podczas pobierania składników', details: error.message });
+        res.status(500).json({
+            error: 'Błąd podczas pobierania składników',
+            details: error.message,
+        });
     }
 });
+
 
 // 2. Dodanie składnika do przepisu
 router.post('/', async (req, res) => {
