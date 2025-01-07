@@ -1,74 +1,84 @@
 const express = require('express');
 const router = express.Router();
-const { Recipe, Ingredient, UserIngredient, RecipeIngredient } = require('../models');
-const verifyToken = require('../middleware/verifyToken');
+const { RecipeIngredient, Ingredient, UserIngredient, Recipe } = require('../models');
 const { convertUnits } = require('../utils/unitConversion');
+const verifyToken = require('../middleware/verifyToken'); // Importowanie middleware
 
-// Sugestia przepisów
+// Funkcja do obliczenia dostępnych składników użytkownika
+async function getUserIngredients(userId) {
+    const userIngredients = await UserIngredient.findAll({
+        where: { user_id: userId },
+    });
+
+    const userIngredientData = {};
+    userIngredients.forEach(ingredient => {
+        const ingredientId = ingredient.ingredient_id;
+        if (!userIngredientData[ingredientId]) {
+            userIngredientData[ingredientId] = 0;
+        }
+        userIngredientData[ingredientId] += convertUnits(ingredient.quantity, ingredient.unit, 'g'); // Przelicz na gramy
+    });
+
+    return userIngredientData;
+}
+
+// Endpoint do pobierania przepisów (z weryfikacją tokena)
 router.get('/', verifyToken, async (req, res) => {
-    const { userId } = req;
+    const userId = req.userId; // Używamy userId z tokena
 
     try {
-        // Pobierz składniki użytkownika
-        const userIngredients = await UserIngredient.findAll({
-            where: { user_id: userId },
-            include: {
-                model: Ingredient,
-                as: 'ingredient',
-            },
-        });
+        // Pobieramy składniki, które ma użytkownik
+        const userIngredients = await getUserIngredients(userId);
 
-        // Pobierz przepisy i ich wymagane składniki
-        const recipes = await Recipe.findAll({
-            include: {
-                model: Ingredient,
-                through: { model: RecipeIngredient },
-                as: 'Ingredients', // alias dla powiązania z RecipeIngredient
-            },
-        });
+        // Pobranie wszystkich przepisów, które mogą być wykonane przez użytkownika
+        const recipes = await Recipe.findAll();
 
-        const suggestions = [];
+        const possibleRecipes = [];
 
-        // Sprawdź każdy przepis
+        // Iteracja po wszystkich przepisach
         for (const recipe of recipes) {
-            let isPossible = true;
+            // Pobranie składników wymaganych przez dany przepis
+            const recipeIngredients = await RecipeIngredient.findAll({
+                where: { recipe_id: recipe.id },
+                include: [
+                    {
+                        model: Ingredient,
+                        as: 'ingredient',
+                        attributes: ['name', 'unit', 'price'],
+                    },
+                ],
+            });
 
-            // Sprawdź składniki przepisu
-            for (const recipeIngredient of recipe.Ingredients) {
-                const userIngredient = userIngredients.find(
-                    (ui) => ui.ingredient_id === recipeIngredient.id
-                );
+            let canMakeRecipe = true; // Flaga, czy użytkownik ma wszystkie składniki
 
-                if (userIngredient) {
-                    // Użytkownik ma składnik - konwersja jednostek
-                    const userQuantity =
-                        userIngredient.unit === recipeIngredient.unit
-                            ? userIngredient.quantity // Jednostki są takie same
-                            : convertUnits(userIngredient.quantity, userIngredient.unit, recipeIngredient.unit); // Konwersja jednostek
+            // Iteracja po składnikach przepisu
+            for (const recipeIngredient of recipeIngredients) {
+                const requiredQuantity = convertUnits(recipeIngredient.quantity, recipeIngredient.unit, 'g'); // Wymagana ilość w gramach
+                const ingredientId = recipeIngredient.ingredient_id;
 
-                    if (userQuantity < recipeIngredient.RecipeIngredient.quantity) {
-                        isPossible = false; // Ilość niewystarczająca
-                        break;
-                    }
-                } else {
-                    isPossible = false; // Brakuje składnika
-                    break;
+                // Sprawdzamy, czy użytkownik ma wystarczającą ilość tego składnika
+                if (!userIngredients[ingredientId] || userIngredients[ingredientId] < requiredQuantity) {
+                    canMakeRecipe = false;
+                    break; // Jeżeli użytkownik nie ma wystarczającej ilości składnika, przerywamy
                 }
             }
 
-            // Dodaj przepis do sugestii, jeśli możliwy
-            if (isPossible) {
-                suggestions.push({
+            if (canMakeRecipe) {
+                possibleRecipes.push({
+                    recipeId: recipe.id,
                     recipeName: recipe.name,
-                    description: recipe.description,
-                    instructions: recipe.instructions,
+                    message: `Masz wystarczające składniki, aby przygotować ten przepis!`,
                 });
             }
         }
 
-        res.json(suggestions);
+        if (possibleRecipes.length === 0) {
+            return res.status(404).json({ error: 'Brak przepisów, które użytkownik może przygotować z dostępnych składników' });
+        }
+
+        res.json(possibleRecipes);
     } catch (error) {
-        res.status(500).json({ error: "Błąd podczas analizy przepisów", details: error.message });
+        res.status(500).json({ error: 'Błąd podczas pobierania przepisów', details: error.message });
     }
 });
 
