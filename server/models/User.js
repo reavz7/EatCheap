@@ -19,10 +19,13 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING(60),
             allowNull: false,
-        }   
+        },
+        admin: {  // Dodajemy pole admin jako boolean
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
     }, {
         timestamps: false,
-       
     });
 
     User.associate = (models) => {
@@ -34,14 +37,14 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
-     // Przy tworzeniu usera tworze mu od razu budzet aby nie musial on tego robic pozniej sam,
-     //zatem budzet bedzie juz tylko aktualizowany od tego momentu przez samego uzytkownika
-     User.afterCreate(async (user) => {
-        const { Budget } = sequelize.models; 
+    // Przy tworzeniu użytkownika tworzymy również budżet
+    User.afterCreate(async (user) => {
+        const { Budget } = sequelize.models;
         await Budget.create({
             user_id: user.id,
-            amount: 0, 
+            amount: 0,
         });
     });
+
     return User;
 };
