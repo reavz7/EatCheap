@@ -46,9 +46,9 @@ router.post("/login", async (req, res) => {
     if (!email || !password) {
         return res.status(400).json({ error: "Email i hasło są wymagane!" });
     }
-
+    
     try {
-        const user = await User.findOne({ where: { email } });
+        const user = await User.findOne({ where: { email } });  
         if (!user) {
             return res.status(401).json({ error: "Nieprawidłowy email lub hasło" });
         }
@@ -58,12 +58,18 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Nieprawidłowy email lub hasło" });
         }
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ message: "Zalogowano pomyślnie", token });
+        const token = jwt.sign({ id: user.id, admin: user.admin }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({
+            message: "Zalogowano pomyślnie",
+            token,
+            admin: user.admin,  // Dodajemy rolę admina w odpowiedzi
+        });
     } catch (error) {
         res.status(500).json({ error: "Błąd serwera", details: error.message });
     }
 });
+
 
 // Tworzenie nowego użytkownika
 router.post("/", async (req, res) => {

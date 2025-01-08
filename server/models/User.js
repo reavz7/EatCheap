@@ -20,9 +20,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(60),
             allowNull: false,
         },
-        admin: {  // Dodajemy pole admin jako boolean
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
+        admin: {  
+            type: DataTypes.TINYINT,  
+            defaultValue: 0,  
+            allowNull: false,
         },
     }, {
         timestamps: false,

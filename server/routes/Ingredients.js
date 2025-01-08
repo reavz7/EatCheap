@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { Ingredient } = require('../models');
 const { Op } = require('sequelize'); // import z sequelize biblioteki (to jest cos takiego jak w SQL like po prostu, i bedzie tu potrzebne)
-
-
+const verifyAdmin = require('../middleware/verifyAdmin');
+const verifyToken = require('../middleware/verifyToken');
 // Wszystkie składniki
 router.get('/', async(req, res)=>{
     try{
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Dodanie nowego składnika
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, verifyAdmin, async (req, res) => {
     const { name, price, unit } = req.body;
 
     if (!name || !price) {
