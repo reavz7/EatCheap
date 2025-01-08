@@ -49,7 +49,7 @@ router.post('/', verifyToken, verifyAdmin, async (req, res) => {
 });
 
 // Aktualizacja istniejącego skladnika
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
     const { id } = req.params;
     const { name, price, unit } = req.body;
 
@@ -72,7 +72,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Usuwanie istniejacego skladnika
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
     const { id } = req.params;
 
     try {
