@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { RecipeIngredient, Ingredient, UserIngredient, Recipe } = require('../models');
 const { convertUnits } = require('../utils/unitConversion');
-const verifyToken = require('../middleware/verifyToken'); // Importowanie middleware
+const verifyToken = require('../middleware/verifyToken');
 
 // Funkcja do obliczenia dostępnych składników użytkownika
 async function getUserIngredients(userId) {
@@ -22,22 +22,34 @@ async function getUserIngredients(userId) {
     return userIngredientData;
 }
 
-// Endpoint do pobierania przepisów (z weryfikacją tokena)
+// Endpoint do pobierania przepisów z filtrami
 router.get('/', verifyToken, async (req, res) => {
     const userId = req.userId; // Używamy userId z tokena
+    const { isVegan, isVegetarian, isGlutenFree } = req.query;
 
     try {
-        // Pobieramy składniki, które ma użytkownik
-        const userIngredients = await getUserIngredients(userId);
+        // Budujemy warunki filtrów na podstawie query stringu
+        const filterConditions = {};
+        if (isVegan !== undefined) filterConditions.isVegan = isVegan === '1' ? 1 : 0;
+        if (isVegetarian !== undefined) filterConditions.isVegetarian = isVegetarian === '1' ? 1 : 0;
+        if (isGlutenFree !== undefined) filterConditions.isGlutenFree = isGlutenFree === '1' ? 1 : 0;
 
-        // Pobranie wszystkich przepisów, które mogą być wykonane przez użytkownika
-        const recipes = await Recipe.findAll();
+        // Pobranie przepisów uwzględniających filtry
+        const recipes = await Recipe.findAll({
+            where: filterConditions,
+        });
+
+        if (recipes.length === 0) {
+            return res.status(404).json({ error: 'Nie znaleziono przepisów spełniających podane kryteria' });
+        }
+
+        // Pobieramy składniki użytkownika
+        const userIngredients = await getUserIngredients(userId);
 
         const possibleRecipes = [];
 
-        // Iteracja po wszystkich przepisach
+        // Iteracja po przepisach i sprawdzanie, czy użytkownik ma składniki
         for (const recipe of recipes) {
-            // Pobranie składników wymaganych przez dany przepis
             const recipeIngredients = await RecipeIngredient.findAll({
                 where: { recipe_id: recipe.id },
                 include: [
@@ -51,15 +63,13 @@ router.get('/', verifyToken, async (req, res) => {
 
             let canMakeRecipe = true; // Flaga, czy użytkownik ma wszystkie składniki
 
-            // Iteracja po składnikach przepisu
             for (const recipeIngredient of recipeIngredients) {
                 const requiredQuantity = convertUnits(recipeIngredient.quantity, recipeIngredient.unit, 'g'); // Wymagana ilość w gramach
                 const ingredientId = recipeIngredient.ingredient_id;
 
-                // Sprawdzamy, czy użytkownik ma wystarczającą ilość tego składnika
                 if (!userIngredients[ingredientId] || userIngredients[ingredientId] < requiredQuantity) {
                     canMakeRecipe = false;
-                    break; // Jeżeli użytkownik nie ma wystarczającej ilości składnika, przerywamy
+                    break; // Jeśli brakuje składnika, przerywamy
                 }
             }
 
