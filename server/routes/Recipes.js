@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { Recipe } = require('../models');
-
+const verifyToken = require('../middleware/verifyToken');
+const { Op } = require('sequelize');
 // Pobranie wszystkich przepisów
 router.get('/', async (req, res) => {
     try {
@@ -50,7 +51,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Tworzenie nowego przepisu
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => { // Middleware verifyToken dodane
     const { name, description, instructions, isVegan, isVegetarian, isGlutenFree } = req.body;
 
     // Walidacja podstawowa
@@ -59,6 +60,22 @@ router.post('/', async (req, res) => {
     }
 
     try {
+        // Sprawdzenie, czy użytkownik stworzył już przepis dzisiaj
+        const todayRecipes = await Recipe.findOne({
+            where: {
+                user_id: req.userId,
+                createdAt: {
+                    [Op.gte]: new Date().setHours(0, 0, 0, 0), // Początek dzisiejszego dnia
+                    [Op.lt]: new Date().setHours(23, 59, 59, 999), // Koniec dzisiejszego dnia
+                },
+            },
+        });
+
+        if (todayRecipes) {
+            return res.status(403).json({ error: 'Możesz dodać tylko jeden przepis dziennie.' });
+        }
+
+        // Tworzenie przepisu
         const newRecipe = await Recipe.create({
             name,
             instructions,
@@ -66,6 +83,7 @@ router.post('/', async (req, res) => {
             isVegan: isVegan || false,
             isVegetarian: isVegetarian || false,
             isGlutenFree: isGlutenFree || false,
+            user_id: req.userId, // Przypisanie user_id z tokenu
         });
 
         res.status(201).json({ message: 'Przepis utworzony pomyślnie', recipe: newRecipe });
@@ -76,16 +94,21 @@ router.post('/', async (req, res) => {
 
 // Aktualizacja przepisu 
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => { // Middleware verifyToken dodane
     const { id } = req.params;
     const { name, description, instructions, isVegan, isVegetarian, isGlutenFree } = req.body;
 
     try {
-        const recipe = await Recipe.findByPk(id); // Poprawiona nazwa metody
+        const recipe = await Recipe.findByPk(id);
         if (!recipe) {
             return res.status(404).json({ error: "Przepis nie został znaleziony" });
         }
-        
+
+        // Sprawdzenie, czy użytkownik jest właścicielem przepisu
+        if (recipe.user_id !== req.userId) {
+            return res.status(403).json({ error: "Brak uprawnień do edytowania tego przepisu" });
+        }
+
         // Aktualizacja przepisu
         const updatedRecipe = await recipe.update({
             name: name || recipe.name,
@@ -98,7 +121,7 @@ router.put('/:id', async (req, res) => {
 
         res.json({
             message: `Przepis na ${name} został pomyślnie zaktualizowany!`,
-            recipe: updatedRecipe, // Poprawiona nazwa obiektu
+            recipe: updatedRecipe,
         });
     } catch (error) {
         res.status(500).json({
@@ -109,7 +132,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Usuwanie przepisu
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => { // Middleware verifyToken dodane
     const { id } = req.params;
 
     try {
@@ -117,6 +140,11 @@ router.delete('/:id', async (req, res) => {
 
         if (!recipe) {
             return res.status(404).json({ error: 'Przepis nie został znaleziony' });
+        }
+
+        // Sprawdzenie, czy użytkownik jest właścicielem przepisu
+        if (recipe.user_id !== req.userId) {
+            return res.status(403).json({ error: "Brak uprawnień do usuwania tego przepisu" });
         }
 
         await recipe.destroy();
