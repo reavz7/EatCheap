@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        user_id: { // Dodana kolumna user_id
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'users', // Nawiązanie do tabeli 'users' w bazie danych
+                key: 'id',
+            },
+        },
     });
 
     Recipe.associate = (models) => {
@@ -36,6 +44,12 @@ module.exports = (sequelize, DataTypes) => {
             through: models.RecipeIngredient,
             foreignKey: "recipe_id",
             as: "Ingredients",
+        });
+
+        // Dodanie powiązania z modelem User (użytkownikiem)
+        Recipe.belongsTo(models.User, { 
+            foreignKey: 'user_id', 
+            as: 'user' 
         });
     };
 
