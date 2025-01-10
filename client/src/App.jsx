@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import axios from "axios";
 import { use } from 'react';
 
 function App() {
-  const [users, setUsers] = useState([]);
+  const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true); // Dodajemy stan loading
 
   useEffect(() => {
-    axios.get("http://localhost:5000/users")
+    axios.get("http://localhost:5000/recipes")
       .then((response) => {
-        setUsers(response.data);
+        setRecipes(response.data);
         setLoading(false); // Po załadowaniu danych ustawiamy loading na false
       });
   }, []);
@@ -23,8 +22,8 @@ function App() {
 
   return (
     <ul>
-      {users.map(user => (
-        <li key={user.id}>{user.username}</li> // Tutaj korzystasz z mapowania
+      {recipes.map(recipe => (
+        <li key={recipe.id}>{recipe.name}</li> // Tutaj korzystasz z mapowania
       ))}
     </ul>
   );
