@@ -1,18 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {Budget} = require('../models');
+const { Budget } = require('../models');
 const verifyToken = require('../middleware/verifyToken');
 
 // 1. Pobranie budżetu użytkownika
-router.get('/:userId', verifyToken, async (req, res) => {
-    const { userId } = req.params;
-
+router.get('/', verifyToken, async (req, res) => {
     try {
-        if (req.userId !== parseInt(userId)) {
-            return res.status(403).json({ error: 'Brak uprawnień do budżetu tego użytkownika' });
-        }
-
-        const budget = await Budget.findOne({ where: { user_id: userId } });
+        // Używamy userId z middleware verifyToken
+        const budget = await Budget.findOne({ where: { user_id: req.userId } });
+        
         if (!budget) {
             return res.status(404).json({ error: 'Budżet dla tego użytkownika nie został znaleziony' });
         }
@@ -22,9 +18,9 @@ router.get('/:userId', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Błąd podczas pobierania budżetu', details: error.message });
     }
 });
+
 // 2. Aktualizacja budżetu przez dodanie/odjęcie kwoty
-router.put('/:userId', verifyToken, async (req, res) => {
-    const { userId } = req.params;
+router.put('/', verifyToken, async (req, res) => {
     const { amountChange } = req.body;
 
     if (amountChange === undefined) {
@@ -32,7 +28,8 @@ router.put('/:userId', verifyToken, async (req, res) => {
     }
 
     try {
-        const budget = await Budget.findOne({ where: { user_id: userId } });
+        // Używamy userId z middleware verifyToken
+        const budget = await Budget.findOne({ where: { user_id: req.userId } });
 
         if (!budget) {
             return res.status(404).json({ error: 'Budżet dla tego użytkownika nie został znaleziony' });
@@ -51,8 +48,5 @@ router.put('/:userId', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Błąd podczas aktualizowania budżetu', details: error.message });
     }
 });
-
-
-
 
 module.exports = router;
