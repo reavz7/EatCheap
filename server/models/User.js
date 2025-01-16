@@ -30,22 +30,10 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     User.associate = (models) => {
-        User.hasOne(models.Budget, {
-            foreignKey: "user_id",
-        });
         User.hasMany(models.UserIngredient, {
             foreignKey: "user_id",
         });
     };
-
-    // Przy tworzeniu użytkownika tworzymy również budżet
-    User.afterCreate(async (user) => {
-        const { Budget } = sequelize.models;
-        await Budget.create({
-            user_id: user.id,
-            amount: 0,
-        });
-    });
 
     return User;
 };

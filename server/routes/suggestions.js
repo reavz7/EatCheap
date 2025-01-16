@@ -56,7 +56,7 @@ router.get('/', verifyToken, async (req, res) => {
                     {
                         model: Ingredient,
                         as: 'ingredient',
-                        attributes: ['name', 'unit', 'price'],
+                        attributes: ['name', 'unit'],
                     },
                 ],
             });

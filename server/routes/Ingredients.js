@@ -1,19 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const { Ingredient } = require('../models');
-const { Op } = require('sequelize'); // import z sequelize biblioteki (to jest cos takiego jak w SQL like po prostu, i bedzie tu potrzebne)
+const { Op } = require('sequelize');
 const verifyAdmin = require('../middleware/verifyAdmin');
 const verifyToken = require('../middleware/verifyToken');
+
 // Wszystkie składniki
-router.get('/', async(req, res)=>{
-    try{
+router.get('/', async(req, res) => {
+    try {
         const allIngredients = await Ingredient.findAll();
         res.json(allIngredients);
+    } catch (error) {
+        res.status(500).json({ error: "Błąd pobierania danych", details: error.message });
     }
-    catch(error){
-        res.status(500).json({error: "Błąd pobierania danych", details: error.message})
-    }
-})  
+});
+
 // Składnik po ID
 router.get('/:id', async (req, res) => {
     const ingredientId = req.params.id;
@@ -34,24 +35,24 @@ router.get('/:id', async (req, res) => {
 
 // Dodanie nowego składnika
 router.post('/', verifyToken, verifyAdmin, async (req, res) => {
-    const { name, price, unit } = req.body;
+    const { name, unit } = req.body; // Usunięto 'price'
 
-    if (!name || !price) {
-        return res.status(400).json({ error: "Nazwa i cena są wymagane!" });
+    if (!name) {
+        return res.status(400).json({ error: "Nazwa jest wymagana!" });
     }
 
     try {
-        const newIngredient = await Ingredient.create({ name, price, unit });
+        const newIngredient = await Ingredient.create({ name, unit }); // Usunięto 'price'
         res.status(201).json({ message: "Składnik dodany pomyślnie", ingredient: newIngredient });
     } catch (error) {
         res.status(500).json({ error: "Błąd podczas dodawania składnika", details: error.message });
     }
 });
 
-// Aktualizacja istniejącego skladnika
+// Aktualizacja istniejącego składnika
 router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
     const { id } = req.params;
-    const { name, price, unit } = req.body;
+    const { name, unit } = req.body; // Usunięto 'price'
 
     try {
         const ingredient = await Ingredient.findByPk(id);
@@ -61,8 +62,7 @@ router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
 
         const updatedIngredient = await ingredient.update({
             name: name || ingredient.name,
-            price: price !== undefined ? price : ingredient.price,
-            unit: unit || ingredient.unit,
+            unit: unit || ingredient.unit, // Usunięto 'price'
         });
 
         res.json({ message: "Składnik zaktualizowany pomyślnie", ingredient: updatedIngredient });
@@ -71,7 +71,7 @@ router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
     }
 });
 
-// Usuwanie istniejacego skladnika
+// Usuwanie składnika
 router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
     const { id } = req.params;
 
@@ -86,10 +86,9 @@ router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Błąd podczas usuwania składnika", details: error.message });
     }
-}); 
+});
 
-// WYSZUKANIE SKLADNIKOW PO NAZWIE
-
+// Wyszukiwanie składników po nazwie
 router.get('/search', async (req, res) => {
     const { name } = req.query;
 
@@ -109,7 +108,5 @@ router.get('/search', async (req, res) => {
         res.status(500).json({ error: "Błąd podczas wyszukiwania składników", details: error.message });
     }
 });
-
-
 
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 const { RecipeIngredient, Ingredient } = require('../models');
 
 // 1. Pobranie wszystkich składników dla przepisu
+// 1. Pobranie wszystkich składników dla przepisu
 router.get('/:recipeId', async (req, res) => {
     const { recipeId } = req.params;
 
@@ -13,7 +14,7 @@ router.get('/:recipeId', async (req, res) => {
                 {
                     model: Ingredient,
                     as: "ingredient", // Dodano alias, zgodnie z modelem Ingredient
-                    attributes: ['name', 'price', 'unit'],
+                    attributes: ['name', 'unit'], 
                 },
             ],
         });
@@ -30,6 +31,7 @@ router.get('/:recipeId', async (req, res) => {
         });
     }
 });
+
 
 
 // 2. Dodanie składnika do przepisu
