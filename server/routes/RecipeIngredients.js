@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { RecipeIngredient, Ingredient } = require("../models");
 const verifyToken = require("../middleware/verifyToken");
+const { isValidUnit } = require("../utils/unitAllowed.js");
 
 // 1. Pobranie wszystkich składników dla przepisu
 router.get("/:recipeId", verifyToken, async (req, res) => {
@@ -15,7 +16,7 @@ router.get("/:recipeId", verifyToken, async (req, res) => {
         {
           model: Ingredient,
           as: "ingredient", // Dodano alias, zgodnie z modelem Ingredient
-          attributes: ["name", "unit"],
+          attributes: ["name", "group"],
         },
       ],
     });
@@ -37,16 +38,29 @@ router.get("/:recipeId", verifyToken, async (req, res) => {
 
 // 2. Dodanie składnika do przepisu
 router.post("/", verifyToken, async (req, res) => {
-  // Dodano verifyToken
   const { recipe_id, ingredient_id, quantity, unit } = req.body;
 
-  if (!recipe_id || !ingredient_id || !quantity) {
+  if (!recipe_id || !ingredient_id || !quantity || !unit) {
     return res
       .status(400)
-      .json({ error: "Wymagane pola: recipe_id, ingredient_id, quantity" });
+      .json({ error: "Wymagane pola: recipe_id, ingredient_id, quantity, unit" });
   }
 
   try {
+    // Sprawdzanie, czy składnik istnieje
+    const ingredient = await Ingredient.findByPk(ingredient_id);
+    if (!ingredient) {
+      return res.status(404).json({ error: "Składnik nie znaleziony" });
+    }
+
+    // Sprawdzanie, czy jednostka pasuje do grupy jednostek składnika
+    if (!isValidUnit(unit, ingredient.group)) {
+      return res.status(400).json({
+        error: `Jednostka "${unit}" nie pasuje do grupy "${ingredient.group}" składnika "${ingredient.name}"`,
+      });
+    }
+
+    // Dodanie składnika do przepisu
     const newRecipeIngredient = await RecipeIngredient.create({
       recipe_id,
       ingredient_id,
