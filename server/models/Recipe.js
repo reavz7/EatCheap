@@ -29,17 +29,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    averagePreparationTime: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // Czas przygotowania jest wymagany
+    },
     user_id: {
-      // Dodana kolumna user_id
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "users", // Nawiązanie do tabeli 'users' w bazie danych
         key: "id",
-      },
-      averagePreparationTime: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
       },
     },
   });
