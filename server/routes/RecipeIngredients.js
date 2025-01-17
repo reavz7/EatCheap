@@ -81,8 +81,7 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 router.put("/:id", verifyToken, async (req, res) => {
-  // Dodano verifyToken
-  const { id } = req.params;
+  const { id } = req.params; // ID składnika w przepisie
   const { quantity, unit } = req.body;
 
   try {
@@ -92,6 +91,20 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ error: "Składnik nie został znaleziony" });
     }
 
+    // Pobieramy składnik bazowy, aby sprawdzić jego grupę jednostek
+    const ingredient = await Ingredient.findByPk(recipeIngredient.ingredient_id);
+    if (!ingredient) {
+      return res.status(404).json({ error: "Składnik bazowy nie został znaleziony" });
+    }
+
+    // Walidacja jednostki
+    if (unit && !isValidUnit(unit, ingredient.group)) {
+      return res.status(400).json({
+        error: `Jednostka "${unit}" nie pasuje do grupy "${ingredient.group}" składnika "${ingredient.name}"`,
+      });
+    }
+
+    // Aktualizacja składnika w przepisie
     const updatedRecipeIngredient = await recipeIngredient.update({
       quantity: quantity !== undefined ? quantity : recipeIngredient.quantity,
       unit: unit !== undefined ? unit : recipeIngredient.unit,
