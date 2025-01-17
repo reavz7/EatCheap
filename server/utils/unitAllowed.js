@@ -1,7 +1,11 @@
-const allowedUnits = ["kg", "g", "l", "ml", "sztuki"];
+const unitGroups = {
+  weight: ["kg", "g"],
+  volume: ["l", "ml"],
+  count: ["szt"], // Używamy "szt" zamiast "sztuki"
+};
 
-function isValidUnit(unit) {
-  return allowedUnits.includes(unit);
+function isValidUnit(unit, group) {
+  return unitGroups[group]?.includes(unit) || false;
 }
 
-module.exports = { isValidUnit };
+module.exports = { unitGroups, isValidUnit };

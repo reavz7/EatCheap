@@ -4,7 +4,8 @@ const { Ingredient } = require("../models");
 const { Op } = require("sequelize");
 const verifyAdmin = require("../middleware/verifyAdmin");
 const verifyToken = require("../middleware/verifyToken");
-
+const { unitGroups } = require("../utils/unitAllowed.js");
+ 
 // Wszystkie składniki
 router.get("/", async (req, res) => {
   try {
@@ -66,14 +67,19 @@ router.get("/:id", verifyToken, async (req, res) => {
 
 // Dodanie nowego składnika
 router.post("/", verifyToken, verifyAdmin, async (req, res) => {
-  const { name, unit } = req.body; // Usunięto 'price'
+  const { name, group } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ error: "Nazwa jest wymagana!" });
+  // Walidacja danych wejściowych
+  if (!name || !group) {
+    return res.status(400).json({ error: "Nazwa i grupa są wymagane!" });
+  }
+
+  if (!Object.keys(unitGroups).includes(group)) {
+    return res.status(400).json({ error: `Grupa "${group}" nie jest dozwolona!` });
   }
 
   try {
-    const newIngredient = await Ingredient.create({ name, unit }); // Usunięto 'price'
+    const newIngredient = await Ingredient.create({ name, group });
     res.status(201).json({
       message: "Składnik dodany pomyślnie",
       ingredient: newIngredient,
@@ -89,17 +95,23 @@ router.post("/", verifyToken, verifyAdmin, async (req, res) => {
 // Aktualizacja istniejącego składnika
 router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
   const { id } = req.params;
-  const { name, unit } = req.body; // Usunięto 'price'
+  const { name, group } = req.body;
 
   try {
     const ingredient = await Ingredient.findByPk(id);
+
     if (!ingredient) {
       return res.status(404).json({ error: "Składnik nie znaleziony" });
     }
 
+    // Walidacja grupy, jeśli dostarczono nową wartość
+    if (group && !Object.keys(unitGroups).includes(group)) {
+      return res.status(400).json({ error: `Grupa "${group}" nie jest dozwolona!` });
+    }
+
     const updatedIngredient = await ingredient.update({
       name: name || ingredient.name,
-      unit: unit || ingredient.unit, // Usunięto 'price'
+      group: group || ingredient.group,
     });
 
     res.json({
