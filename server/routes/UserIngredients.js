@@ -22,6 +22,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // Dodanie składnika do użytkownika 
+// Dodanie składnika do użytkownika
 router.post("/", verifyToken, async (req, res) => {
   const { ingredientId, quantity, unit } = req.body;
 
@@ -47,10 +48,24 @@ router.post("/", verifyToken, async (req, res) => {
       });
     }
 
-    // Dodanie składnika do użytkownika
+    // Sprawdzenie, czy użytkownik już dodał ten składnik
+    const existingUserIngredient = await UserIngredient.findOne({
+      where: { user_id: userId, ingredient_id: ingredientId },
+    });
+
+    if (existingUserIngredient) {
+      // Jeśli składnik już istnieje, aktualizujemy jego ilość i jednostkę
+      await existingUserIngredient.update({ quantity, unit });
+      return res.json({
+        message: "Składnik został zaktualizowany",
+        userIngredient: existingUserIngredient,
+      });
+    }
+
+    // Jeśli składnik nie istnieje, dodajemy go do bazy
     const newUserIngredient = await UserIngredient.create({
-      user_id: userId, // Upewnij się, że to jest 'user_id', a nie 'userId'
-      ingredient_id: ingredientId, // Upewnij się, że to jest 'ingredient_id', a nie 'ingredientId'
+      user_id: userId,
+      ingredient_id: ingredientId,
       quantity,
       unit,
     });
@@ -66,6 +81,7 @@ router.post("/", verifyToken, async (req, res) => {
     });
   }
 });
+
 
 
 

@@ -6,39 +6,9 @@ const {
   UserIngredient,
   Recipe,
 } = require("../models");
-const { convertUnits } = require("../utils/unitConversion");
+const { convertUnits } = require("../utils/unitConversion"); // Musimy zawsze używać konwersji jednostek
 const verifyToken = require("../middleware/verifyToken");
 
-// Funkcja do obliczenia dostępnych składników użytkownika
-async function getUserIngredients(userId) {
-  const userIngredients = await UserIngredient.findAll({
-    where: { user_id: userId },
-  });
-
-  const userIngredientData = {};
-  userIngredients.forEach((ingredient) => {
-    const ingredientId = ingredient.ingredient_id;
-    if (!userIngredientData[ingredientId]) {
-      userIngredientData[ingredientId] = 0;
-    }
-
-    // Jeżeli jednostka to "sztuki", traktujemy ją jako liczbę, nie przeliczamy na gramy
-    if (ingredient.unit === "sztuki") {
-      userIngredientData[ingredientId] += ingredient.quantity; // Po prostu dodajemy ilość
-    } else {
-      // Inne jednostki konwertujemy do gramów
-      userIngredientData[ingredientId] += convertUnits(
-        ingredient.quantity,
-        ingredient.unit,
-        "g"
-      );
-    }
-  });
-
-  return userIngredientData;
-}
-
-// Endpoint do pobierania przepisów z filtrami
 router.get("/", verifyToken, async (req, res) => {
   const userId = req.userId; // Używamy userId z tokena
   const { isVegan, isVegetarian, isGlutenFree } = req.query;
@@ -77,7 +47,7 @@ router.get("/", verifyToken, async (req, res) => {
           {
             model: Ingredient,
             as: "ingredient",
-            attributes: ["name", "unit"],
+            attributes: ["name", "group"], // Pobieramy grupę zamiast jednostki
           },
         ],
       });
@@ -85,17 +55,28 @@ router.get("/", verifyToken, async (req, res) => {
       let canMakeRecipe = true; // Flaga, czy użytkownik ma wszystkie składniki
 
       for (const recipeIngredient of recipeIngredients) {
-        const requiredQuantity = convertUnits(
-          recipeIngredient.quantity,
-          recipeIngredient.unit,
-          "g"
-        ); // Wymagana ilość w gramach
-        const ingredientId = recipeIngredient.ingredient_id;
+        const { ingredient_id, quantity, unit } = recipeIngredient;
+        const ingredientGroup = recipeIngredient.ingredient.group; // Grupa składnika
 
-        if (
-          !userIngredients[ingredientId] ||
-          userIngredients[ingredientId] < requiredQuantity
-        ) {
+        // Zawsze konwertujemy jednostki!
+        let requiredQuantity = quantity;
+        if (ingredientGroup !== "count") {
+          // Jeśli jednostka nie jest sztuką, konwertujemy do gramów (lub innej bazowej jednostki)
+          requiredQuantity = convertUnits(quantity, unit, "g"); // Konwersja jednostek do gramów
+        }
+
+        // Sprawdzamy, czy użytkownik ma składnik w wymaganej ilości
+        const userIngredient = userIngredients[ingredient_id];
+
+        // Użytkownik może mieć składnik w różnych jednostkach, więc konwertujemy również jego składnik
+        let userQuantity = userIngredient ? userIngredient.quantity : 0;
+        let userUnit = userIngredient ? userIngredient.unit : "";
+
+        if (userUnit && userUnit !== "count") {
+          userQuantity = convertUnits(userQuantity, userUnit, "g"); // Konwertujemy do gramów
+        }
+
+        if (!userIngredient || userQuantity < requiredQuantity) {
           canMakeRecipe = false;
           break; // Jeśli brakuje składnika, przerywamy
         }
@@ -125,5 +106,24 @@ router.get("/", verifyToken, async (req, res) => {
     });
   }
 });
+
+// Funkcja do pobierania składników użytkownika z bazy
+async function getUserIngredients(userId) {
+  const userIngredients = await UserIngredient.findAll({
+    where: { user_id: userId },
+    attributes: ["ingredient_id", "quantity", "unit"],
+  });
+
+  // Przechowywanie składników użytkownika w formacie {ingredient_id: {quantity, unit}}
+  const userIngredientMap = {};
+  userIngredients.forEach(ingredient => {
+    userIngredientMap[ingredient.ingredient_id] = {
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+    };
+  });
+
+  return userIngredientMap;
+}
 
 module.exports = router;

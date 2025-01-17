@@ -1,9 +1,9 @@
 const conversionRates = {
   kg: 1000, // kilogramy na gramy
   g: 1, // baza - gramy
-  l: 1000, // litry na mililitry - tylko jeżeli musisz pracować z objętością
+  l: 1000, // litry na mililitry
   ml: 1, // mililitry - baza
-  sztuki: 1, // Jednostka sztuki nie wymaga konwersji na masę
+  szt: 1, // Jednostka sztuka (nie konwertujemy sztuk, tylko porównujemy)
 };
 
 function convertUnits(quantity, fromUnit, toUnit) {
@@ -16,12 +16,7 @@ function convertUnits(quantity, fromUnit, toUnit) {
     return quantity;
   }
 
-  // Konwertowanie jednostek, ale tylko wtedy, kiedy ma to sens
-  if (fromUnit === "sztuki" || toUnit === "sztuki") {
-    return quantity; // Sztuki nie wymagają konwersji
-  }
-
-  // Sprawdzamy jednostki masy
+  // Konwersja jednostek masy/objętości
   return (quantity * conversionRates[fromUnit]) / conversionRates[toUnit];
 }
 

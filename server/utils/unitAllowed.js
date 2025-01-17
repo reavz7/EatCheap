@@ -1,7 +1,7 @@
 const unitGroups = {
   weight: ["kg", "g"],
   volume: ["l", "ml"],
-  count: ["szt"], // Używamy "szt" zamiast "sztuki"
+  count: ["szt"], 
 };
 
 function isValidUnit(unit, group) {
