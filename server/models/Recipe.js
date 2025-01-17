@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
         model: "users", // Nawiązanie do tabeli 'users' w bazie danych
         key: "id",
       },
+      averagePreparationTime: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
   });
 
