@@ -18,7 +18,6 @@ router.get("/", async (req, res) => {
 });
 
 // Wyszukiwanie składników po nazwie
-// Wyszukiwanie składników po nazwie
 router.get("/search", verifyToken, async (req, res) => {
   const { name } = req.query;
 

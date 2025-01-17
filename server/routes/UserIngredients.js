@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { UserIngredient } = require("../models");
 const verifyToken = require("../middleware/verifyToken"); // Import funkcji verifyToken
+const { isValidUnit } = require("../utils/unitAllowed");
 
 // Pobranie wszystkich składników użytkownika (z autoryzacją)
 router.get("/", verifyToken, async (req, res) => {
@@ -13,19 +14,22 @@ router.get("/", verifyToken, async (req, res) => {
     });
     res.json(userIngredients);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Błąd podczas pobierania składników",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "Błąd podczas pobierania składników",
+      details: error.message,
+    });
   }
 });
 
-// Dodanie nowego składnika dla użytkownika (np. dodanie składnika do bazy)
+// Dodanie nowego składnika dla użytkownika
 router.post("/", verifyToken, async (req, res) => {
   const { userId } = req;
   const { ingredient_id, quantity, unit } = req.body;
+
+  // Sprawdzamy, czy jednostka jest dozwolona
+  if (!isValidUnit(unit)) {
+    return res.status(400).json({ error: `Niedozwolona jednostka: ${unit}` });
+  }
 
   if (!ingredient_id || !quantity || !unit) {
     return res
@@ -42,12 +46,10 @@ router.post("/", verifyToken, async (req, res) => {
     });
     res.status(201).json(newUserIngredient);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Błąd podczas tworzenia składnika",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "Błąd podczas tworzenia składnika",
+      details: error.message,
+    });
   }
 });
 
@@ -68,12 +70,10 @@ router.put("/:id", verifyToken, async (req, res) => {
     await userIngredient.update({ quantity, unit });
     res.json(userIngredient);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Błąd podczas aktualizacji składnika",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "Błąd podczas aktualizacji składnika",
+      details: error.message,
+    });
   }
 });
 
@@ -93,12 +93,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
     await userIngredient.destroy();
     res.json({ message: "Składnik został usunięty" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Błąd podczas usuwania składnika",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "Błąd podczas usuwania składnika",
+      details: error.message,
+    });
   }
 });
 
