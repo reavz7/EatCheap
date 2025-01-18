@@ -6,7 +6,6 @@ const { isValidUnit } = require("../utils/unitAllowed.js");
 
 // 1. Pobranie wszystkich składników dla przepisu
 router.get("/:recipeId", verifyToken, async (req, res) => {
-  // Dodano verifyToken
   const { recipeId } = req.params;
 
   try {
@@ -15,7 +14,7 @@ router.get("/:recipeId", verifyToken, async (req, res) => {
       include: [
         {
           model: Ingredient,
-          as: "ingredient", // Dodano alias, zgodnie z modelem Ingredient
+          as: "ingredient",
           attributes: ["name", "group"],
         },
       ],
@@ -41,13 +40,13 @@ router.post("/", verifyToken, async (req, res) => {
   const { recipe_id, ingredient_id, quantity, unit } = req.body;
 
   if (!recipe_id || !ingredient_id || !quantity || !unit) {
-    return res
-      .status(400)
-      .json({ error: "Wymagane pola: recipe_id, ingredient_id, quantity, unit" });
+    return res.status(400).json({
+      error: "Wymagane pola: recipe_id, ingredient_id, quantity, unit",
+    });
   }
 
   try {
-    // Sprawdzanie, czy składnik istnieje
+    // sprawdz czy skladnik istnieje
     const ingredient = await Ingredient.findByPk(ingredient_id);
     if (!ingredient) {
       return res.status(404).json({ error: "Składnik nie znaleziony" });
@@ -60,7 +59,6 @@ router.post("/", verifyToken, async (req, res) => {
       });
     }
 
-    // Dodanie składnika do przepisu
     const newRecipeIngredient = await RecipeIngredient.create({
       recipe_id,
       ingredient_id,
@@ -80,6 +78,7 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
+// Aktualizacja skladnika w przepisie
 router.put("/:id", verifyToken, async (req, res) => {
   const { id } = req.params; // ID składnika w przepisie
   const { quantity, unit } = req.body;
@@ -91,20 +90,21 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ error: "Składnik nie został znaleziony" });
     }
 
-    // Pobieramy składnik bazowy, aby sprawdzić jego grupę jednostek
-    const ingredient = await Ingredient.findByPk(recipeIngredient.ingredient_id);
+    const ingredient = await Ingredient.findByPk(
+      recipeIngredient.ingredient_id
+    );
     if (!ingredient) {
-      return res.status(404).json({ error: "Składnik bazowy nie został znaleziony" });
+      return res
+        .status(404)
+        .json({ error: "Składnik bazowy nie został znaleziony" });
     }
 
-    // Walidacja jednostki
     if (unit && !isValidUnit(unit, ingredient.group)) {
       return res.status(400).json({
         error: `Jednostka "${unit}" nie pasuje do grupy "${ingredient.group}" składnika "${ingredient.name}"`,
       });
     }
 
-    // Aktualizacja składnika w przepisie
     const updatedRecipeIngredient = await recipeIngredient.update({
       quantity: quantity !== undefined ? quantity : recipeIngredient.quantity,
       unit: unit !== undefined ? unit : recipeIngredient.unit,

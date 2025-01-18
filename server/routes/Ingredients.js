@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 const verifyAdmin = require("../middleware/verifyAdmin");
 const verifyToken = require("../middleware/verifyToken");
 const { unitGroups } = require("../utils/unitAllowed.js");
- 
+
 // Wszystkie składniki
 router.get("/", async (req, res) => {
   try {
@@ -23,12 +23,9 @@ router.get("/search", verifyToken, async (req, res) => {
   const { name } = req.query;
 
   try {
-    // Logowanie, żeby sprawdzić co jest w zapytaniu
-    console.log("Wyszukiwanie składnika o nazwie:", name);
-
     const ingredients = await Ingredient.findAll({
       where: {
-        name: { [Op.like]: `${name}%` }, // Zmiana na dopasowanie do początku nazwy
+        name: { [Op.like]: `${name}%` },
       },
     });
 
@@ -69,13 +66,14 @@ router.get("/:id", verifyToken, async (req, res) => {
 router.post("/", verifyToken, verifyAdmin, async (req, res) => {
   const { name, group } = req.body;
 
-  // Walidacja danych wejściowych
   if (!name || !group) {
     return res.status(400).json({ error: "Nazwa i grupa są wymagane!" });
   }
 
   if (!Object.keys(unitGroups).includes(group)) {
-    return res.status(400).json({ error: `Grupa "${group}" nie jest dozwolona!` });
+    return res
+      .status(400)
+      .json({ error: `Grupa "${group}" nie jest dozwolona!` });
   }
 
   try {
@@ -104,9 +102,10 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
       return res.status(404).json({ error: "Składnik nie znaleziony" });
     }
 
-    // Walidacja grupy, jeśli dostarczono nową wartość
     if (group && !Object.keys(unitGroups).includes(group)) {
-      return res.status(400).json({ error: `Grupa "${group}" nie jest dozwolona!` });
+      return res
+        .status(400)
+        .json({ error: `Grupa "${group}" nie jest dozwolona!` });
     }
 
     const updatedIngredient = await ingredient.update({

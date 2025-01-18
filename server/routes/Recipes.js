@@ -74,14 +74,12 @@ router.post("/", verifyToken, async (req, res) => {
     averagePreparationTime,
   } = req.body;
 
-  // Walidacja podstawowa
   if (!name || !instructions || averagePreparationTime === undefined) {
     return res
       .status(400)
       .json({ error: "Nazwa, instrukcje i czas przygotowania są wymagane!" });
   }
 
-  // Walidacja dla isVegan, isVegetarian i isGlutenFree
   if (
     typeof isVegan !== "boolean" ||
     typeof isVegetarian !== "boolean" ||
@@ -94,7 +92,7 @@ router.post("/", verifyToken, async (req, res) => {
   }
 
   try {
-    // Sprawdzenie, czy użytkownik stworzył już przepis dzisiaj
+    // sprawdzenie czy uzytkownik zrobil juz dzisiaj przepis, bo moze zrobic jeden na dzien
     const todayRecipes = await Recipe.findOne({
       where: {
         user_id: req.userId,
@@ -111,7 +109,6 @@ router.post("/", verifyToken, async (req, res) => {
         .json({ error: "Możesz dodać tylko jeden przepis dziennie." });
     }
 
-    // Tworzenie przepisu
     const newRecipe = await Recipe.create({
       name,
       instructions,
@@ -119,8 +116,8 @@ router.post("/", verifyToken, async (req, res) => {
       isVegan: isVegan || false,
       isVegetarian: isVegetarian || false,
       isGlutenFree: isGlutenFree || false,
-      user_id: req.userId, // Przypisanie user_id z tokenu
-      averagePreparationTime, // Przekazanie czasu przygotowania
+      user_id: req.userId,
+      averagePreparationTime,
     });
 
     res
@@ -148,7 +145,6 @@ router.put("/:id", verifyToken, async (req, res) => {
     averagePreparationTime,
   } = req.body;
 
-  // Sprawdzamy, czy czas przygotowania jest podany
   if (averagePreparationTime === undefined) {
     return res.status(400).json({ error: "Czas przygotowania jest wymagany!" });
   }
@@ -159,7 +155,6 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ error: "Przepis nie został znaleziony" });
     }
 
-    // Sprawdzenie, czy użytkownik jest właścicielem przepisu
     if (recipe.user_id !== req.userId) {
       return res
         .status(403)
@@ -176,7 +171,7 @@ router.put("/:id", verifyToken, async (req, res) => {
         isVegetarian !== undefined ? isVegetarian : recipe.isVegetarian,
       isGlutenFree:
         isGlutenFree !== undefined ? isGlutenFree : recipe.isGlutenFree,
-      averagePreparationTime, // Aktualizacja czasu przygotowania
+      averagePreparationTime,
     });
 
     res.json({
@@ -193,7 +188,6 @@ router.put("/:id", verifyToken, async (req, res) => {
 
 // Usuwanie przepisu
 router.delete("/:id", verifyToken, async (req, res) => {
-  // Middleware verifyToken dodane
   const { id } = req.params;
 
   try {
@@ -203,7 +197,6 @@ router.delete("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ error: "Przepis nie został znaleziony" });
     }
 
-    // Sprawdzenie, czy użytkownik jest właścicielem przepisu
     if (recipe.user_id !== req.userId) {
       return res
         .status(403)

@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { UserIngredient, Ingredient  } = require("../models");
+const { UserIngredient, Ingredient } = require("../models");
 const verifyToken = require("../middleware/verifyToken"); // Import funkcji verifyToken
 const { isValidUnit } = require("../utils/unitAllowed");
 
-// Pobranie wszystkich składników użytkownika (z autoryzacją)
+// 1 Pobranie wszystkich składników użytkownika
 router.get("/", verifyToken, async (req, res) => {
   const userId = req.userId; // Pobieramy userId z tokena
 
@@ -18,42 +18,36 @@ router.get("/", verifyToken, async (req, res) => {
       error: "Błąd podczas pobierania składników",
       details: error.message,
     });
-  } 
+  }
 });
 
-// Dodanie składnika do użytkownika
+// 2 Dodanie składnika do użytkownika
 router.post("/", verifyToken, async (req, res) => {
   const { ingredientId, quantity, unit } = req.body;
 
-  // Pobieranie userId z tokena (zamiast przekazywać go w req.body)
   const userId = req.userId;
 
-  // Walidacja danych wejściowych
   if (!userId || !ingredientId || !quantity || !unit) {
     return res.status(400).json({ error: "Wszystkie pola są wymagane!" });
   }
 
   try {
-    // Sprawdzenie, czy składnik istnieje
     const ingredient = await Ingredient.findByPk(ingredientId);
     if (!ingredient) {
       return res.status(404).json({ error: "Składnik nie znaleziony" });
     }
 
-    // Sprawdzanie, czy jednostka pasuje do grupy jednostek składnika
     if (!isValidUnit(unit, ingredient.group)) {
       return res.status(400).json({
         error: `Jednostka "${unit}" nie pasuje do grupy "${ingredient.group}" składnika "${ingredient.name}"`,
       });
     }
 
-    // Sprawdzenie, czy użytkownik już dodał ten składnik
     const existingUserIngredient = await UserIngredient.findOne({
       where: { user_id: userId, ingredient_id: ingredientId },
     });
 
     if (existingUserIngredient) {
-      // Jeśli składnik już istnieje, aktualizujemy jego ilość i jednostkę
       await existingUserIngredient.update({ quantity, unit });
       return res.json({
         message: "Składnik został zaktualizowany",
@@ -61,7 +55,6 @@ router.post("/", verifyToken, async (req, res) => {
       });
     }
 
-    // Jeśli składnik nie istnieje, dodajemy go do bazy
     const newUserIngredient = await UserIngredient.create({
       user_id: userId,
       ingredient_id: ingredientId,
@@ -81,13 +74,10 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-
-
-
-// Aktualizacja składnika użytkownika
+// 3 Aktualizacja składnika użytkownika
 router.put("/:id", verifyToken, async (req, res) => {
-  const userId = req.userId; // Pobieramy userId z tokena
-  const ingredientId = req.params.id; // Id składnika do edycji
+  const userId = req.userId;
+  const ingredientId = req.params.id;
   const { quantity, unit } = req.body;
 
   try {
@@ -98,10 +88,11 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ error: "Składnik nie został znaleziony" });
     }
 
-    // Pobieramy składnik, aby sprawdzić jego grupę jednostek
     const ingredient = await Ingredient.findByPk(userIngredient.ingredient_id);
     if (!ingredient) {
-      return res.status(404).json({ error: "Składnik bazowy nie został znaleziony" });
+      return res
+        .status(404)
+        .json({ error: "Składnik bazowy nie został znaleziony" });
     }
 
     // Walidacja jednostki
@@ -111,7 +102,6 @@ router.put("/:id", verifyToken, async (req, res) => {
       });
     }
 
-    // Aktualizujemy ilość i jednostkę składnika użytkownika
     await userIngredient.update({ quantity, unit });
     res.json({
       message: "Składnik został pomyślnie zaktualizowany",
@@ -124,7 +114,6 @@ router.put("/:id", verifyToken, async (req, res) => {
     });
   }
 });
-
 
 // Usunięcie składnika użytkownika
 router.delete("/:id", verifyToken, async (req, res) => {

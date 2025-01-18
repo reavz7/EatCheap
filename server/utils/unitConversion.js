@@ -11,12 +11,10 @@ function convertUnits(quantity, fromUnit, toUnit) {
     throw new Error(`Nieznana jednostka: ${fromUnit} lub ${toUnit}`);
   }
 
-  // Jeśli jednostki są takie same, po prostu zwróć ilość
   if (fromUnit === toUnit) {
     return quantity;
   }
 
-  // Konwersja jednostek masy/objętości
   return (quantity * conversionRates[fromUnit]) / conversionRates[toUnit];
 }
 

@@ -6,7 +6,7 @@ const {
   UserIngredient,
   Recipe,
 } = require("../models");
-const { convertUnits } = require("../utils/unitConversion"); // Musimy zawsze używać konwersji jednostek
+const { convertUnits } = require("../utils/unitConversion");
 const verifyToken = require("../middleware/verifyToken");
 
 router.get("/", verifyToken, async (req, res) => {
@@ -14,7 +14,6 @@ router.get("/", verifyToken, async (req, res) => {
   const { isVegan, isVegetarian, isGlutenFree } = req.query;
 
   try {
-    // Budujemy warunki filtrów na podstawie query stringu
     const filterConditions = {};
     if (isVegan !== undefined)
       filterConditions.isVegan = isVegan === "1" ? 1 : 0;
@@ -23,7 +22,6 @@ router.get("/", verifyToken, async (req, res) => {
     if (isGlutenFree !== undefined)
       filterConditions.isGlutenFree = isGlutenFree === "1" ? 1 : 0;
 
-    // Pobranie przepisów uwzględniających filtry
     const recipes = await Recipe.findAll({
       where: filterConditions,
     });
@@ -34,12 +32,10 @@ router.get("/", verifyToken, async (req, res) => {
       });
     }
 
-    // Pobieramy składniki użytkownika
     const userIngredients = await getUserIngredients(userId);
 
     const possibleRecipes = [];
 
-    // Iteracja po przepisach i sprawdzanie, czy użytkownik ma składniki
     for (const recipe of recipes) {
       const recipeIngredients = await RecipeIngredient.findAll({
         where: { recipe_id: recipe.id },
@@ -47,38 +43,34 @@ router.get("/", verifyToken, async (req, res) => {
           {
             model: Ingredient,
             as: "ingredient",
-            attributes: ["name", "group"], // Pobieramy grupę zamiast jednostki
+            attributes: ["name", "group"],
           },
         ],
       });
 
-      let canMakeRecipe = true; // Flaga, czy użytkownik ma wszystkie składniki
+      let canMakeRecipe = true;
 
       for (const recipeIngredient of recipeIngredients) {
         const { ingredient_id, quantity, unit } = recipeIngredient;
-        const ingredientGroup = recipeIngredient.ingredient.group; // Grupa składnika
+        const ingredientGroup = recipeIngredient.ingredient.group;
 
-        // Zawsze konwertujemy jednostki!
         let requiredQuantity = quantity;
         if (ingredientGroup !== "count") {
-          // Jeśli jednostka nie jest sztuką, konwertujemy do gramów (lub innej bazowej jednostki)
-          requiredQuantity = convertUnits(quantity, unit, "g"); // Konwersja jednostek do gramów
+          requiredQuantity = convertUnits(quantity, unit, "g");
         }
 
-        // Sprawdzamy, czy użytkownik ma składnik w wymaganej ilości
         const userIngredient = userIngredients[ingredient_id];
 
-        // Użytkownik może mieć składnik w różnych jednostkach, więc konwertujemy również jego składnik
         let userQuantity = userIngredient ? userIngredient.quantity : 0;
         let userUnit = userIngredient ? userIngredient.unit : "";
 
         if (userUnit && userUnit !== "count") {
-          userQuantity = convertUnits(userQuantity, userUnit, "g"); // Konwertujemy do gramów
+          userQuantity = convertUnits(userQuantity, userUnit, "g");
         }
 
         if (!userIngredient || userQuantity < requiredQuantity) {
           canMakeRecipe = false;
-          break; // Jeśli brakuje składnika, przerywamy
+          break;
         }
       }
 
@@ -107,16 +99,16 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-// Funkcja do pobierania składników użytkownika z bazy
+// pobieranie składników użytkownika z bazy
 async function getUserIngredients(userId) {
   const userIngredients = await UserIngredient.findAll({
     where: { user_id: userId },
     attributes: ["ingredient_id", "quantity", "unit"],
   });
 
-  // Przechowywanie składników użytkownika w formacie {ingredient_id: {quantity, unit}}
+  // tutaj skladniki użytkownika w formacie {ingredient_id: {quantity, unit}}
   const userIngredientMap = {};
-  userIngredients.forEach(ingredient => {
+  userIngredients.forEach((ingredient) => {
     userIngredientMap[ingredient.ingredient_id] = {
       quantity: ingredient.quantity,
       unit: ingredient.unit,
