@@ -21,7 +21,7 @@ export default function AuthForm() {
     const endpoint = isLogin
       ? "http://localhost:5000/users/login"
       : "http://localhost:5000/users/";
-    const payload = isLogin
+    const payload = isLogin 
       ? { email, password }
       : { username, email, password };
   
@@ -42,6 +42,7 @@ export default function AuthForm() {
   
 
   return (
+    
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ff6d00] to-white p-4">
       <div className="w-full max-w-md">
         <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden">
@@ -131,5 +132,6 @@ export default function AuthForm() {
         </div>
       </div>
     </div>
+    
   );
 }
