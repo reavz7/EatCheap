@@ -11,7 +11,7 @@ export default function AuthForm() {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setError(null); // Czyścimy błędy przy zmianie formularza
+    setError(null); 
     setMessage(null);
   };
 
@@ -31,9 +31,7 @@ export default function AuthForm() {
       setError(null);
   
       if (isLogin) {
-        // Obsługa tokena
         console.log("Token:", data.token);
-        // Możesz go zapisać w lokalnym storage:
         localStorage.setItem("authToken", data.token);
       }
     } catch (err) {
