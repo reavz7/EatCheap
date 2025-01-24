@@ -1,5 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
+import { loginUser, registerUser } from "../services/api.js";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,6 +10,8 @@ export default function AuthForm() {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
+  const navigate = useNavigate(); // Hook do nawigacji
+
   const toggleForm = () => {
     setIsLogin(!isLogin);
     setError(null); 
@@ -17,32 +20,24 @@ export default function AuthForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const endpoint = isLogin
-      ? "http://localhost:5000/users/login"
-      : "http://localhost:5000/users/";
-    const payload = isLogin 
-      ? { email, password }
-      : { username, email, password };
-  
     try {
-      const { data } = await axios.post(endpoint, payload);
-      setMessage(data.message || "Operacja zakończona sukcesem");
-      setError(null);
-  
       if (isLogin) {
-        console.log("Token:", data.token);
+        const data = await loginUser(email, password);
         localStorage.setItem("authToken", data.token);
+        console.log("Zalogowano:", data);
+        navigate("/home"); // Przekierowanie na Home po zalogowaniu
+      } else {
+        const data = await registerUser(username, email, password);
+        console.log("Zarejestrowano:", data);
+        setMessage("Rejestracja zakończona sukcesem. Teraz możesz się zalogować!");
+        toggleForm(); // Automatyczne przełączenie na formularz logowania
       }
     } catch (err) {
       setError(err.response?.data?.error || "Coś poszło nie tak");
-      setMessage(null);
     }
   };
-  
 
   return (
-    
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ff6d00] to-white p-4">
       <div className="w-full max-w-md">
         <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg overflow-hidden">
@@ -132,6 +127,5 @@ export default function AuthForm() {
         </div>
       </div>
     </div>
-    
   );
 }
