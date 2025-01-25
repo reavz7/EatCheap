@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
+import Modal from "./Modal";
 import { addIngredientToUser, getIngredients, getUserIngredients } from "../services/api";
 
 const Profile = () => {
@@ -11,8 +12,13 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [ingredientsList, setIngredientsList] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(''); // Dodajemy stan do filtrowania
+  const [searchQuery, setSearchQuery] = useState('');
 
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMessage, setModalMessage] = useState("")
+  const [modalTitle, setModalTitle] = useState("")
+
+  
   const fetchUserIngredients = async () => {
     try {
       const ingredients = await getUserIngredients();
@@ -48,21 +54,30 @@ const Profile = () => {
   }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMessage('');
+    e.preventDefault()
+    setError("")
+    setSuccessMessage("")
 
     try {
-      const response = await addIngredientToUser(ingredientId, quantity, unit);
-      setSuccessMessage('Składnik został pomyślnie dodany!');
-      setIngredientId('');
-      setQuantity('');
-      setUnit('');
-      await fetchUserIngredients();
+      const response = await addIngredientToUser(ingredientId, quantity, unit)
+      setModalTitle("Huuuura!")
+      setModalMessage("Składnik został pomyślnie dodany/zaktualizowany!")
+      setIsModalOpen(true)
+      setIngredientId("")
+      setQuantity("")
+      setUnit("")
+      await fetchUserIngredients()
     } catch (err) {
-      setError(err.message || 'Wystąpił błąd przy dodawaniu składnika.');
+      setModalTitle("Mamy problem!")
+      setModalMessage(err.message || "Wystąpił błąd przy dodawaniu składnika.")
+      setIsModalOpen(true)
     }
-  };
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
   const filteredUserIngredients = Array.isArray(userIngredients) ? 
   userIngredients.filter((ingredient) => {
     const ingredientName = ingredientsList.find(item => item.id === ingredient.ingredient_id)?.name;
@@ -88,6 +103,7 @@ const Profile = () => {
           >
             Twoje składniki
           </a>
+          
           <a
             role="tab"
             onClick={() => setPanel(false)}
@@ -156,27 +172,14 @@ const Profile = () => {
     </select>
   </div>
 
-  {/* Wyświetlanie błędu */}
-  {error && (
-    <div className="text-red-600 text-sm">
-      {error}
-    </div>
-  )}
-
-  {/* Wyświetlanie wiadomości sukcesu */}
-  {successMessage && (
-    <div className="text-green-600 text-sm">
-      {successMessage}
-    </div>
-  )}
-
   <button
     type="submit"
     className="w-full bg-[#ff6d00] text-white py-2 px-4 rounded-md hover:bg-black transition duration-300 cursor-pointer"
   >
     Dodaj składnik
   </button>
-</form>
+              </form>
+              <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} title={modalTitle} />
 
             </div>
             <div>
@@ -188,27 +191,31 @@ const Profile = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)} // Zmieniaj zapytanie przy wpisywaniu
               />
-              <ul className="space-y-2 text-black">
-                {filteredUserIngredients.map((ingredient) => {
-                  const ingredientName = ingredientsList.find((item) => item.id === ingredient.ingredient_id)?.name
-                  return (
-                    <li key={ingredient.id} className="flex justify-between items-center mb-2 p-2 border-1 border-gray-300 rounded">
-                      <span>
-                        {ingredientName ? ingredientName : "Nieznany składnik"} - {ingredient.quantity}{" "}
-                        {ingredient.unit}
-                      </span>
-                      <div>
-                        <button className="bg-[#ff6d00] text-white py-1 px-2 rounded mr-2 hover:bg-black transition duration-300 cursor-pointer">
-                          Modyfikuj
-                        </button>
-                        <button className="bg-red-500 text-white py-1 px-2 rounded hover:bg-black transition duration-300 cursor-pointer">
-                          Usuń
-                        </button>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
+              <div className="h-80 overflow-y-auto">
+        <ul className="space-y-2 text-black pr-2">
+          {filteredUserIngredients.map((ingredient) => {
+            const ingredientName = ingredientsList.find((item) => item.id === ingredient.ingredient_id)?.name
+            return (
+              <li
+                key={ingredient.id}
+                className="flex justify-between items-center mb-2 p-2 border border-gray-300 rounded hover:bg-gray-700 transition duration-300"
+              >
+                <span className="text-sm">
+                  {ingredientName ? ingredientName : "Nieznany składnik"} - {ingredient.quantity} {ingredient.unit}
+                </span>
+                <div className="flex space-x-2">
+                  <button className="bg-[#ff6d00] text-white py-1 px-2 rounded text-sm hover:bg-black transition duration-300 cursor-pointer">
+                    Modyfikuj
+                  </button>
+                  <button className="bg-red-500 text-white py-1 px-2 rounded text-sm hover:bg-black transition duration-300 cursor-pointer">
+                    Usuń
+                  </button>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
             </div>
           </div>
 
