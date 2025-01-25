@@ -30,6 +30,11 @@ router.post("/", verifyToken, async (req, res) => {
   if (!userId || !ingredientId || !quantity || !unit) {
     return res.status(400).json({ error: "Wszystkie pola są wymagane!" });
   }
+  
+  if (quantity <= 0) {
+    return res.status(400).json({ error: "Ilość składnika musi być większa od zera!" });
+  }
+  
 
   try {
     const ingredient = await Ingredient.findByPk(ingredientId);
