@@ -51,3 +51,16 @@ export const getUserIngredients = async () => {
     throw new Error("Błąd podczas pobierania składników użytkownika");
   }
 };
+
+export const deleteUserIngredient = async (ingredientId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/useringredients/${ingredientId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    const errorMessage = error.response?.data?.error || error.message || 'Błąd podczas usuwania składnika';
+    throw new Error(errorMessage);
+  }
+};
