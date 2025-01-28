@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { addIngredientToUser } from "../services/api"
 
-const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel }) => {
+const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel, showModal }) => {
   const [editQuantity, setEditQuantity] = useState("")
   const [editUnit, setEditUnit] = useState("")
 
@@ -16,8 +16,9 @@ const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel }) => {
     try {
       await addIngredientToUser(ingredient.ingredient_id, editQuantity, editUnit)
       onSave()
-    } catch (error) {
-      console.error("Error updating ingredient:", error)
+      showModal("Huuuura!", "Składnik został pomyślnie zaktualizowany!")
+    } catch (error) { 
+      showModal("Mamy problem!", error.message || "Wystąpił błąd przy aktualizacji składnika")
     }
   }
 
@@ -28,7 +29,7 @@ const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel }) => {
       } transition-transform duration-300 ease-in-out`}
     >
       <div className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Edytuj składnik</h3>
+        <h3 className="text-lg text-black font-semibold mb-4">Edytuj składnik</h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Ilość</label>
@@ -36,7 +37,7 @@ const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel }) => {
               type="number"
               value={editQuantity}
               onChange={(e) => setEditQuantity(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff6d00] focus:ring focus:ring-[#ff6d00] focus:ring-opacity-50"
+              className="mt-1 block w-full rounded-md border-gray-300 text-black shadow-sm focus:border-[#ff6d00] focus:ring focus:ring-[#ff6d00] focus:ring-opacity-50"
             />
           </div>
           <div>
@@ -44,7 +45,7 @@ const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel }) => {
             <select
               value={editUnit}
               onChange={(e) => setEditUnit(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff6d00] focus:ring focus:ring-[#ff6d00] focus:ring-opacity-50"
+              className="mt-1 block w-full rounded-md text-black border-gray-300 shadow-sm focus:border-[#ff6d00] focus:ring focus:ring-[#ff6d00] focus:ring-opacity-50"
             >
               <option value="g">gramy (g)</option>
               <option value="kg">kilogramy (kg)</option>
@@ -56,13 +57,13 @@ const EditIngredientPanel = ({ isOpen, ingredient, onSave, onCancel }) => {
           <div className="flex justify-between">
             <button
               onClick={handleSave}
-              className="bg-[#ff6d00] text-white py-2 px-4 rounded hover:bg-black transition duration-300"
+              className="bg-[#ff6d00] text-white py-2 px-4 rounded hover:bg-black transition duration-300 cursor-pointer"
             >
               Zapisz
             </button>
             <button
               onClick={onCancel}
-              className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition duration-300"
+              className="bg-red-500 text-white py-2 px-4 rounded hover:bg-black transition duration-300 cursor-pointer"
             >
               Anuluj
             </button>

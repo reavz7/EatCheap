@@ -16,7 +16,7 @@ const AddIngredientForm = ({ ingredientsList, fetchUserIngredients, showModal })
       setUnit("")
       await fetchUserIngredients()
     } catch (err) {
-      showModal("Mamy problem!", err.message || "Wystąpił błąd przy dodawaniu składnika.")
+      showModal("Mamy problem!", err.message || "Jesteś pewny, że podałeś dobrą jednostkę?")
     }
   }
 

@@ -71,13 +71,13 @@ const Navbar = () => {
             : "fixed left-[-100%]"
         }
       >
-        <h1 className="w-full text-3xl font-bold text-[#ff6d00] m-8">
+        <h1 className="w-full text-3xl font-bold text-[#ff6d00] m-8" onClick={() => navigate("/home")}>
           EATCHEAP
         </h1>
         <ul className="p-4 uppercase">
           <li
             className="p-4 border-b hover:text-[#ff6d00] ease-in-out duration-150 border-gray-700 cursor-pointer"
-            onClick={() => scrollToSection("home")}
+            onClick={() => navigate("/home")}
           >
             Sugestie
           </li>
@@ -89,7 +89,7 @@ const Navbar = () => {
           </li>
           <li
             className="p-4 border-b hover:text-[#ff6d00] ease-in-out duration-150 border-gray-700 cursor-pointer"
-            onClick={() => scrollToSection("about")}
+            onClick={() => navigate("/profile")}
           >
             Profil
           </li>

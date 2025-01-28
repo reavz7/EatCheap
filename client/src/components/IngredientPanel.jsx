@@ -71,6 +71,7 @@ const IngredientPanel = ({ userIngredients, fetchUserIngredients }) => {
         ingredient={editIngredient}
         onSave={handleEditSave}
         onCancel={handleEditCancel}
+        showModal={showModal}
       />
       <Modal
         isOpen={isModalOpen}
