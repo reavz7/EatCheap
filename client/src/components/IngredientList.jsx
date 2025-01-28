@@ -16,7 +16,7 @@ const IngredientList = ({
       showModal("Sukces!", "Składnik został usunięty!");
       await fetchUserIngredients();
     } catch (error) {
-      showModal("Błąd!", "Wystąpił błąd podczas usuwania składnika.");
+      showModal("Mamy problem!", "Wystąpił błąd podczas usuwania składnika.");
     }
   };
 
