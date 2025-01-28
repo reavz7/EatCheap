@@ -44,7 +44,6 @@ const IngredientPanel = ({ userIngredients, fetchUserIngredients }) => {
   const handleEditSave = async () => {
     await fetchUserIngredients();
     setIsEditPanelOpen(false);
-    showModal("Sukces!", "Składnik został zaktualizowany!");
   };
 
   const handleEditCancel = () => {

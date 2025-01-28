@@ -6,9 +6,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const verifyToken = require("../middleware/verifyToken");
+const verifyAdmin = require("../middleware/verifyAdmin");
 
 // Pobranie wszystkich użytkowników (bez hasła)
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: { exclude: ["password"] },
@@ -78,13 +79,31 @@ router.post("/login", async (req, res) => {
 router.post("/", async (req, res) => {
   const { username, email, password } = req.body;
 
+  // Walidacja danych
   if (!username || !email || !password) {
-    return res
-      .status(400)
-      .json({ error: "Nazwa użytkownika, email i hasło są wymagane" });
+    return res.status(400).json({ error: "Nazwa użytkownika, email i hasło są wymagane" });
+  }
+
+  // Sprawdzenie, czy e-mail ma poprawny format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: "Niepoprawny format e-maila" });
   }
 
   try {
+    // Sprawdzanie, czy e-mail już istnieje
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(400).json({ error: "E-mail jest już zajęty" });
+    }
+
+    // Sprawdzanie, czy nazwa użytkownika już istnieje
+    const existingUsername = await User.findOne({ where: { username } });
+    if (existingUsername) {
+      return res.status(400).json({ error: "Nazwa użytkownika jest już zajęta" });
+    }
+
+    // Jeśli e-mail i nazwa są unikalne, tworzę nowego użytkownika
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
@@ -92,67 +111,74 @@ router.post("/", async (req, res) => {
       email,
       password: hashedPassword,
     });
+
     res.status(201).json({
       message: "Użytkownik utworzony pomyślnie",
       user: { username: newUser.username, email: newUser.email },
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Błąd serwera", details: error.message });
   }
 });
+
+
 
 // Pobranie konkretnego użytkownika przez ID
-router.get("/:id", async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const user = await User.findByPk(userId, {
-      attributes: { exclude: ["password"] },
-    });
-    if (!user) {
+router.get("/info", verifyToken, async (req, res) => {
+  const userId = req.userId; // Pobierz ID użytkownika z tokena
+  try { 
+    const userInfo = await User.findByPk(userId); // Znajdź użytkownika w bazie
+    if (!userInfo) { // Jeśli użytkownik nie istnieje
       return res.status(404).json({ error: "Użytkownik nie znaleziony" });
     }
-    res.json(user);
+    res.json({
+      user: { username: userInfo.username, email: userInfo.email }, // Zwróć dane użytkownika
+    });
   } catch (error) {
-    res.status(500).json({ error: "Błąd serwera", details: error.message });
+    res.status(500).json({ error: "Błąd serwera", details: error.message }); // Obsłuż błąd serwera
   }
 });
+
 
 // Aktualizacja danych użytkownika
-router.put("/:id", async (req, res) => {
-  const userId = req.params.id;
+router.put("/", verifyToken, async (req, res) => {
+  const userId = req.userId; // Pobierz ID użytkownika z tokena
   const { username, email, password } = req.body;
 
-  if (!username || !email) {
-    return res
-      .status(400)
-      .json({ error: "Nazwa użytkownika i email są wymagane!" });
-  }
-
   try {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId); // Znajdź użytkownika na podstawie ID z tokena
     if (!user) {
       return res.status(404).json({ error: "Użytkownik nie znaleziony" });
     }
 
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
-      : user.password;
-    const updatedUser = await user.update({
-      username,
-      email,
-      password: hashedPassword,
-    });
+    // Przygotuj obiekt aktualizacji tylko z przesłanych pól
+    const updates = {};
+    if (username) updates.username = username;
+    if (email) updates.email = email;
+    if (password) updates.password = await bcrypt.hash(password, 10);
+
+    // Jeśli żadne dane nie zostały przesłane
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "Brak danych do aktualizacji" });
+    }
+
+    // Aktualizuj użytkownika
+    await user.update(updates);
+
     res.json({
       message: "Dane użytkownika zaktualizowane pomyślnie",
-      user: { username: updatedUser.username, email: updatedUser.email },
+      user: { username: user.username, email: user.email },
     });
   } catch (error) {
     res.status(500).json({ error: "Błąd serwera", details: error.message });
   }
 });
 
+
+
 // Usunięcie użytkownika
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   const userId = req.params.id;
   try {
     const user = await User.findByPk(userId);

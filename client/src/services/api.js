@@ -2,6 +2,8 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000"; // Podstawowy URL backendu
 
+// ENDPOINTY  UŻYTKOWNIKA
+
 // Logowanie użytkownika
 export const loginUser = async (email, password) => {
   const response = await axios.post(`${API_URL}/users/login`, { email, password });
@@ -15,6 +17,25 @@ export const registerUser = async (username, email, password) => {
 };
 
 
+export const updateUser = async (userId, username, email, password) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/users/`,
+      { username, email, password },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || error.message || 'Błąd podczas aktualizacji danych użytkownika';
+    throw new Error(errorMessage);
+  }
+};
+
+
 // ENDPOINTY DO INGREDIENTS- SKŁADNIKI 
 
 
@@ -23,7 +44,9 @@ export const registerUser = async (username, email, password) => {
 // Pobieranie wszystkich składników
 export const getIngredients = async () => {
   try {
-    const response = await axios.get(`${API_URL}/ingredients`);
+    const response = await axios.get(`${API_URL}/ingredients`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+    });
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || 'Błąd podczas pobierania składników');
@@ -164,7 +187,6 @@ export const updateUserIngredient = async (ingredientId, quantity, unit) => {
         },
       }
     );
-    console.log("Składnik został zaktualizowany:", response.data);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.error || error.message || 'Błąd podczas aktualizacji składnika';

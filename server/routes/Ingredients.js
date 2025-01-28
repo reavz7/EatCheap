@@ -7,7 +7,7 @@ const verifyToken = require("../middleware/verifyToken");
 const { unitGroups } = require("../utils/unitAllowed.js");
 
 // Wszystkie składniki
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
     const allIngredients = await Ingredient.findAll();
     res.json(allIngredients);
