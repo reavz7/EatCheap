@@ -35,7 +35,7 @@ const Modal = ({ isOpen, onClose, message, title }) => {
         <p className="py-4">{message}</p>
         <div className="modal-action">
           <button className="btn" onClick={onClose}>
-            Close
+            Zamknij
           </button>
         </div>
       </div>
