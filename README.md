@@ -1,4 +1,4 @@
-<h1 align="center">
+![tailwind-and-vite-react](https://github.com/user-attachments/assets/b6d1a084-586a-409e-9554-39c77b7138de)<h1 align="center">
   <br>
   <a href="https://github.com/kamil/eatcheap"><img src="client/public/eatcheap_logo.png" alt="EatCheap" width="200"></a>
   <br>
@@ -6,8 +6,7 @@
   <br>
 </h1>
 
-
-[![forthebadge](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTguNzUwMDExNDQ0MDkxOCIgaGVpZ2h0PSIzNSIgdmlld0JveD0iMCAwIDE1OC43NTAwMTE0NDQwOTE4IDM1Ij48cmVjdCB3aWR0aD0iMTA5LjA5Mzc1NzYyOTM5NDUzIiBoZWlnaHQ9IjM1IiBmaWxsPSIjZjhlNzFjIi8+PHJlY3QgeD0iMTA5LjA5Mzc1NzYyOTM5NDUzIiB3aWR0aD0iNDkuNjU2MjUzODE0Njk3MjY2IiBoZWlnaHQ9IjM1IiBmaWxsPSIjZDUzODM4Ii8+PHRleHQgeD0iNTQuNTQ2ODc4ODE0Njk3MjY2IiB5PSIyMS41IiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iJ1JvYm90bycsIHNhbnMtc2VyaWYiIGZpbGw9IiMxNjE2MTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIj5KQVZBU0NSSVBUPC90ZXh0Pjx0ZXh0IHg9IjEzMy45MjE4ODQ1MzY3NDMxNiIgeT0iMjEuNSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9IidNb250c2VycmF0Jywgc2Fucy1zZXJpZiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjkwMCIgbGV0dGVyLXNwYWNpbmc9IjIiPkFQSTwvdGV4dD48L3N2Zz4=)](https://forthebadge.com)
+![Up<svg xmlns="http://www.w3.org/2000/svg" width="246.29690551757812" height="35" viewBox="0 0 246.29690551757812 35"><rect width="124.90626525878906" height="35" fill="#8422ff"/><rect x="124.90626525878906" width="121.39064025878906" height="35" fill="#389AD5"/><text x="62.45313262939453" y="21.5" font-size="12" font-family="'Roboto', sans-serif" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">TAILWIND AND</text><text x="185.6015853881836" y="21.5" font-size="12" font-family="'Montserrat', sans-serif" fill="#FFFFFF" text-anchor="middle" font-weight="900" letter-spacing="2">VITE REACT</text></svg>loading tailwind-and-vite-react.svg…]()
 
 <h4 align="center">Discover recipes that fit your ingredients and preferences</h4>
 
