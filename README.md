@@ -15,7 +15,7 @@
 * **Smart Recipe Suggestions**  
   - Get meal ideas based on the ingredients you already have.  
 * **Custom Filters**  
-  - Filter recipes by preferences like vegan, gluten-free, or low-calorie meals.  
+  - Filter recipes by preferences like vegan, vegetarian and gluten-free.  
 * **Ingredient Tracker**  
   - Manage your ingredients efficiently with the built-in panel.  
 * **Recipe creator**  
