@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://github.com/kamil/eatcheap"><img src="client/src/assets/eatcheap_login.gif" alt="EatCheap" width="200"></a>
+  <a href="https://github.com/kamil/eatcheap"><img src="client/public/eatcheap_logo.png" alt="EatCheap" width="200"></a>
   <br>
   EatCheap
   <br>
@@ -16,16 +16,14 @@
   - Get meal ideas based on the ingredients you already have.  
 * **Custom Filters**  
   - Filter recipes by preferences like vegan, gluten-free, or low-calorie meals.  
-* **Nutritional Info**  
-  - View detailed calorie information for each recipe.  
 * **Ingredient Tracker**  
-  - Manage your ingredients efficiently with the built-in tracker.  
+  - Manage your ingredients efficiently with the built-in panel.  
+* **Recipe creator**  
+  - Create your own recipes.  
 * **Simple, User-Friendly Interface**  
   - A clean and intuitive design for hassle-free usage.  
 * **Responsive Design**  
   - Works on both desktop and mobile devices.  
-* **Dark/Light Mode**  
-  - Switch between modes for comfortable browsing.  
 
 ## How To Use
 
