@@ -124,7 +124,7 @@ router.post("/", async (req, res) => {
 
 
 
-// Pobranie konkretnego użytkownika przez ID
+// Pobranie id zalogowanie uzytkownika
 router.get("/info", verifyToken, async (req, res) => {
   const userId = req.userId; // Pobierz ID użytkownika z tokena
   try { 

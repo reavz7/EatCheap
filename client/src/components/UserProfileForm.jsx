@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "./Modal";
-import { updateUser } from "../services/api";
+import { updateUser, getUserInfo } from "../services/api";
 
 const UserProfileForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,6 +11,27 @@ const UserProfileForm = () => {
     hasło: "",
     pseudonim: "",
   });
+  const [userInfo, setUserInfo] = useState({
+    email: "",
+    username: "",
+  });
+
+  // Pobranie danych użytkownika po załadowaniu komponentu
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const data = await getUserInfo();
+        setUserInfo({
+          email: data.user.email,
+          username: data.user.username,
+        });
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const openModal = (field) => {
     setActiveField(field);
@@ -44,7 +65,7 @@ const UserProfileForm = () => {
       setIsModalOpen(true);
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, 1000);
     } catch (error) {
       setModalContent({
         title: "Mamy problem!",
@@ -82,12 +103,13 @@ const UserProfileForm = () => {
   return (
     <div className="grid grid-cols-2 p-3 gap-[12rem]">
       <div>
-              <h2 className="text-2xl font-bold mb-6 text-center">Twoje dane</h2>
-              <div className="">
-                  
-              </div>
+        <h2 className="text-2xl font-bold mb-6 text-center">Twoje dane</h2>
+        <div className="space-y-2 text-center">
+          <p><strong>Email:</strong> {userInfo.email}</p>
+          <p><strong>Pseudonim:</strong> {userInfo.username}</p>
+        </div>
       </div>
-          <div className="space-y-4">
+      <div className="space-y-4">
         <h2 className="text-2xl font-bold mb-6 text-center">Zmiana danych</h2>
         <button
           onClick={() => openModal("email")}

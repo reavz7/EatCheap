@@ -35,6 +35,20 @@ export const updateUser = async (userId, username, email, password) => {
   }
 };
 
+// Pobieranie danych użytkownika
+export const getUserInfo = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/users/info`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Błąd podczas pobierania danych użytkownika');
+  }
+};
+
 
 // ENDPOINTY DO INGREDIENTS- SKŁADNIKI 
 
