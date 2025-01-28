@@ -1,8 +1,8 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthForm from './components/AuthForm';
-import Home from './components/Home';
-import Profile from './components/Profile';
+import AuthForm from './pages/AuthForm';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
 
 function App() {
   return (
