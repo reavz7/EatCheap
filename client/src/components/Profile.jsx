@@ -1,136 +1,152 @@
-import React, { useState, useEffect } from "react"
-import Navbar from "./Navbar"
-import Modal from "./Modal"
-import { addIngredientToUser, getIngredients, getUserIngredients, deleteUserIngredient } from "../services/api"
+import React, { useState, useEffect } from "react";
+import Navbar from "./Navbar";
+import Modal from "./Modal";
+import {
+  addIngredientToUser,
+  getIngredients,
+  getUserIngredients,
+  deleteUserIngredient,
+} from "../services/api";
 
 const Profile = () => {
-  const [panel, setPanel] = useState(true)
-  const [ingredientId, setIngredientId] = useState("")
-  const [quantity, setQuantity] = useState("")
-  const [unit, setUnit] = useState("")
-  const [userIngredients, setUserIngredients] = useState([])
-  const [error, setError] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
-  const [ingredientsList, setIngredientsList] = useState([])
-  const [searchQuery, setSearchQuery] = useState("")
+  const [panel, setPanel] = useState(true);
+  const [ingredientId, setIngredientId] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState("");
+  const [userIngredients, setUserIngredients] = useState([]);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [ingredientsList, setIngredientsList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalMessage, setModalMessage] = useState("")
-  const [modalTitle, setModalTitle] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("");
 
-  const [isEditPanelOpen, setIsEditPanelOpen] = useState(false)
-  const [editIngredient, setEditIngredient] = useState(null)
-  const [editQuantity, setEditQuantity] = useState("")
-  const [editUnit, setEditUnit] = useState("")
+  const [isEditPanelOpen, setIsEditPanelOpen] = useState(false);
+  const [editIngredient, setEditIngredient] = useState(null);
+  const [editQuantity, setEditQuantity] = useState("");
+  const [editUnit, setEditUnit] = useState("");
 
   const fetchUserIngredients = async () => {
     try {
-      const ingredients = await getUserIngredients()
+      const ingredients = await getUserIngredients();
       if (Array.isArray(ingredients)) {
-        setUserIngredients(ingredients)
+        setUserIngredients(ingredients);
       } else {
-        setError("Otrzymano dane w niewłaściwym formacie.")
+        setError("Otrzymano dane w niewłaściwym formacie.");
       }
     } catch (err) {
-      setError("Nie udało się pobrać Twoich składników.")
+      setError("Nie udało się pobrać Twoich składników.");
     }
-  }
+  };
 
   // Pobieramy składniki przy renderowaniu komponentu
   const fetchIngredients = async () => {
     try {
-      const ingredients = await getIngredients()
-      setIngredientsList(ingredients)
+      const ingredients = await getIngredients();
+      setIngredientsList(ingredients);
     } catch (err) {
-      setError("Nie udało się pobrać składników.")
+      setError("Nie udało się pobrać składników.");
     }
-  }
+  };
 
   useEffect(() => {
-    fetchUserIngredients()
-  }, [])
+    fetchUserIngredients();
+  }, []);
 
   // Zainicjowanie fetchIngredients po załadowaniu komponentu
   useEffect(() => {
-    fetchIngredients()
-  }, [])
+    fetchIngredients();
+  }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setSuccessMessage("")
+    e.preventDefault();
+    setError("");
+    setSuccessMessage("");
 
     try {
-      const response = await addIngredientToUser(ingredientId, quantity, unit)
-      setModalTitle("Huuuura!")
-      setModalMessage("Składnik został pomyślnie dodany/zaktualizowany!")
-      setIsModalOpen(true)
-      setIngredientId("")
-      setQuantity("")
-      setUnit("")
-      await fetchUserIngredients()
+      const response = await addIngredientToUser(ingredientId, quantity, unit);
+      setModalTitle("Huuuura!");
+      setModalMessage("Składnik został pomyślnie dodany/zaktualizowany!");
+      setIsModalOpen(true);
+      setIngredientId("");
+      setQuantity("");
+      setUnit("");
+      await fetchUserIngredients();
     } catch (err) {
-      setModalTitle("Mamy problem!")
-      setModalMessage(err.message || "Wystąpił błąd przy dodawaniu składnika.")
-      setIsModalOpen(true)
+      setModalTitle("Mamy problem!");
+      setModalMessage(err.message || "Wystąpił błąd przy dodawaniu składnika.");
+      setIsModalOpen(true);
     }
-  }
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const handleModify = (ingredient) => {
-    setEditIngredient(ingredient)
-    setEditQuantity(ingredient.quantity)
-    setEditUnit(ingredient.unit)
-    setIsEditPanelOpen(true)
-  }
+    setEditIngredient(ingredient);
+    setEditQuantity(ingredient.quantity);
+    setEditUnit(ingredient.unit);
+    setIsEditPanelOpen(true);
+  };
 
   const handleSave = async () => {
     // Implement logic to update the ingredient
     try {
       // Make API call to update ingredient
-      const response = await addIngredientToUser(editIngredient.ingredient_id, editQuantity, editUnit)
-      await fetchUserIngredients()
-      setIsEditPanelOpen(false)
-      setModalTitle("Sukces!")
-      setModalMessage("Składnik został zaktualizowany!")
-      setIsModalOpen(true)
+      const response = await addIngredientToUser(
+        editIngredient.ingredient_id,
+        editQuantity,
+        editUnit
+      );
+      await fetchUserIngredients();
+      setIsEditPanelOpen(false);
+      setModalTitle("Sukces!");
+      setModalMessage("Składnik został zaktualizowany!");
+      setIsModalOpen(true);
     } catch (error) {
-      setModalTitle("Mamy problem!")
-      setModalMessage("Wystąpił błąd podczas aktualizacji składnika. Upewnij się, że dobrze podajesz jednostkę")
-      setIsModalOpen(true)
+      setModalTitle("Mamy problem!");
+      setModalMessage(
+        "Wystąpił błąd podczas aktualizacji składnika. Upewnij się, że dobrze podajesz jednostkę"
+      );
+      setIsModalOpen(true);
     }
-  }
+  };
 
   const handleDelete = async (ingredientId) => {
     try {
-      await deleteUserIngredient(ingredientId)
-      setModalTitle("Sukces!")
-      setModalMessage("Składnik został usunięty!")
-      setIsModalOpen(true)
-      await fetchUserIngredients()
+      await deleteUserIngredient(ingredientId);
+      setModalTitle("Sukces!");
+      setModalMessage("Składnik został usunięty!");
+      setIsModalOpen(true);
+      await fetchUserIngredients();
     } catch (error) {
-      setModalTitle("Błąd!")
-      setModalMessage("Wystąpił błąd podczas usuwania składnika.")
-      setIsModalOpen(true)
+      setModalTitle("Błąd!");
+      setModalMessage("Wystąpił błąd podczas usuwania składnika.");
+      setIsModalOpen(true);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setIsEditPanelOpen(false)
-    setEditIngredient(null)
-    setEditQuantity("")
-    setEditUnit("")
-  }
+    setIsEditPanelOpen(false);
+    setEditIngredient(null);
+    setEditQuantity("");
+    setEditUnit("");
+  };
 
   const filteredUserIngredients = Array.isArray(userIngredients)
     ? userIngredients.filter((ingredient) => {
-        const ingredientName = ingredientsList.find((item) => item.id === ingredient.ingredient_id)?.name
-        return ingredientName && ingredientName.toLowerCase().includes(searchQuery.toLowerCase())
+        const ingredientName = ingredientsList.find(
+          (item) => item.id === ingredient.ingredient_id
+        )?.name;
+        return (
+          ingredientName &&
+          ingredientName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       })
-    : []
+    : [];
 
   return (
     <>
@@ -143,7 +159,10 @@ const Profile = () => {
           Tutaj dodasz swoje składniki i zmienisz dane
         </p>
 
-        <div role="tablist" className="tabs tabs-boxed flex justify-center gap-10 mb-8">
+        <div
+          role="tablist"
+          className="tabs tabs-boxed flex justify-center gap-10 mb-8"
+        >
           <a
             role="tab"
             onClick={() => setPanel(true)}
@@ -176,7 +195,10 @@ const Profile = () => {
               <h2 className="text-2xl font-bold mb-6 ">Dodaj składnik</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="ingredientId" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="ingredientId"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Wybierz składnik(sól pieprz i olej dodane są domyślnie)
                   </label>
                   <select
@@ -195,7 +217,9 @@ const Profile = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Ilość</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Ilość
+                  </label>
                   <input
                     type="number"
                     id="quantity"
@@ -207,7 +231,10 @@ const Profile = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="unit"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Jednostka
                   </label>
                   <select
@@ -233,10 +260,17 @@ const Profile = () => {
                   Dodaj składnik
                 </button>
               </form>
-              <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} title={modalTitle} />
+              <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                message={modalMessage}
+                title={modalTitle}
+              />
             </div>
             <div>
-              <h2 className="text-2xl font-bold mb-6">Lista twoich składników</h2>
+              <h2 className="text-2xl font-bold mb-6">
+                Lista twoich składników
+              </h2>
               <input
                 type="text"
                 placeholder="Szukaj składników"
@@ -247,15 +281,19 @@ const Profile = () => {
               <div className="h-80 overflow-y-auto">
                 <ul className="space-y-2 text-black pr-2">
                   {filteredUserIngredients.map((ingredient) => {
-                    const ingredientName = ingredientsList.find((item) => item.id === ingredient.ingredient_id)?.name
+                    const ingredientName = ingredientsList.find(
+                      (item) => item.id === ingredient.ingredient_id
+                    )?.name;
                     return (
                       <li
                         key={ingredient.id}
                         className="flex justify-between items-center mb-2 p-2 border border-gray-300 rounded hover:bg-gray-100 transition duration-300"
                       >
                         <span className="text-sm">
-                          {ingredientName ? ingredientName : "Nieznany składnik"} - {ingredient.quantity}{" "}
-                          {ingredient.unit}
+                          {ingredientName
+                            ? ingredientName
+                            : "Nieznany składnik"}{" "}
+                          - {ingredient.quantity} {ingredient.unit}
                         </span>
                         <div className="flex space-x-2">
                           <button
@@ -264,12 +302,15 @@ const Profile = () => {
                           >
                             Modyfikuj
                           </button>
-                          <button onClick={()=> handleDelete(ingredient.id)} className="bg-red-500 text-white py-1 px-2 rounded text-sm hover:bg-black transition duration-300 cursor-pointer">
+                          <button
+                            onClick={() => handleDelete(ingredient.id)}
+                            className="bg-red-500 text-white py-1 px-2 rounded text-sm hover:bg-black transition duration-300 cursor-pointer"
+                          >
                             Usuń
                           </button>
                         </div>
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               </div>
@@ -293,7 +334,9 @@ const Profile = () => {
             <h3 className="text-lg font-semibold mb-4">Edytuj składnik</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Ilość</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Ilość
+                </label>
                 <input
                   type="number"
                   value={editQuantity}
@@ -302,7 +345,9 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Jednostka</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Jednostka
+                </label>
                 <select
                   value={editUnit}
                   onChange={(e) => setEditUnit(e.target.value)}
@@ -334,8 +379,7 @@ const Profile = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Profile
-
+export default Profile;

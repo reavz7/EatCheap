@@ -14,7 +14,7 @@ export default function AuthForm() {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setError(null); 
+    setError(null);
     setMessage(null);
   };
 
@@ -29,7 +29,9 @@ export default function AuthForm() {
       } else {
         const data = await registerUser(username, email, password);
         console.log("Zarejestrowano:", data);
-        setMessage("Rejestracja zakończona sukcesem. Teraz możesz się zalogować!");
+        setMessage(
+          "Rejestracja zakończona sukcesem. Teraz możesz się zalogować!"
+        );
         toggleForm(); // Automatyczne przełączenie na formularz logowania
       }
     } catch (err) {
