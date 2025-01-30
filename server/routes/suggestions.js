@@ -14,7 +14,7 @@ router.get("/", verifyToken, async (req, res) => {
   const { isVegan, isVegetarian, isGlutenFree } = req.query;
 
   try {
-    const filterConditions = {};
+    const filterConditions = {};  
     if (isVegan !== undefined)
       filterConditions.isVegan = isVegan === "1" ? 1 : 0;
     if (isVegetarian !== undefined)

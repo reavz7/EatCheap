@@ -3,9 +3,10 @@ const router = express.Router();
 const { Recipe } = require("../models");
 const verifyToken = require("../middleware/verifyToken");
 const { Op } = require("sequelize");
+const verifyAdmin = require("../middleware/verifyAdmin");
 
 // Pobranie wszystkich przepisów
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
     const allRecipes = await Recipe.findAll();
     res.json(allRecipes);
@@ -17,7 +18,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/search", async (req, res) => {
+// Filtrowanie przepisów
+router.get("/search", verifyToken, async (req, res) => {
   const { isVegan, isVegetarian, isGlutenFree } = req.query;
 
   try {
@@ -43,7 +45,7 @@ router.get("/search", async (req, res) => {
 });
 
 // Pobranie pojedynczego przepisu po ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -63,7 +65,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Tworzenie nowego przepisu
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, verifyAdmin, async (req, res) => {
   const {
     name,
     description,
@@ -72,6 +74,7 @@ router.post("/", verifyToken, async (req, res) => {
     isVegetarian,
     isGlutenFree,
     averagePreparationTime,
+    imageUrl,
   } = req.body;
 
   if (!name || !instructions || averagePreparationTime === undefined) {
@@ -118,6 +121,7 @@ router.post("/", verifyToken, async (req, res) => {
       isGlutenFree: isGlutenFree || false,
       user_id: req.userId,
       averagePreparationTime,
+      imageUrl: imageUrl || null, // Dodanie obrazu
     });
 
     res
@@ -132,8 +136,7 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 // Aktualizacja przepisu
-
-router.put("/:id", verifyToken, async (req, res) => {
+router.put("/:id", verifyToken, verifyAdmin,  async (req, res) => {
   const { id } = req.params;
   const {
     name,
@@ -143,6 +146,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     isVegetarian,
     isGlutenFree,
     averagePreparationTime,
+    imageUrl,
   } = req.body;
 
   if (averagePreparationTime === undefined) {
@@ -172,6 +176,7 @@ router.put("/:id", verifyToken, async (req, res) => {
       isGlutenFree:
         isGlutenFree !== undefined ? isGlutenFree : recipe.isGlutenFree,
       averagePreparationTime,
+      imageUrl: imageUrl || recipe.imageUrl, // Aktualizacja zdjęcia
     });
 
     res.json({
@@ -187,7 +192,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 });
 
 // Usuwanie przepisu
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -213,7 +218,5 @@ router.delete("/:id", verifyToken, async (req, res) => {
     });
   }
 });
-
-// Filtrowanie przepisów po atrybutach
 
 module.exports = router;

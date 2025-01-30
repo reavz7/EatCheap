@@ -41,6 +41,10 @@ module.exports = (sequelize, DataTypes) => {
         key: "id",
       },
     },
+    imageUrl: {
+      type: DataTypes.STRING(255),
+      allowNull: true, // Możliwość dodania zdjęcia, ale nie jest wymagane
+    },
   });
 
   Recipe.associate = (models) => {
