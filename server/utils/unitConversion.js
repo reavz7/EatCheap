@@ -1,6 +1,6 @@
 const conversionRates = {
   kg: 1000, // kilogramy na gramy
-  g: 1, // baza - gramy
+  g: 1, // MOJA BAZA - CZYLI GRAMY!!!
   l: 1000, // litry na mililitry
   ml: 1, // mililitry - baza
   szt: 1, // Jednostka sztuka (nie konwertujemy sztuk, tylko porównujemy)
