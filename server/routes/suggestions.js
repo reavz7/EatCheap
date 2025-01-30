@@ -101,14 +101,12 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-// pobieranie składników użytkownika z bazy
 async function getUserIngredients(userId) {
   const userIngredients = await UserIngredient.findAll({
     where: { user_id: userId },
     attributes: ["ingredient_id", "quantity", "unit"],
   });
 
-  // tutaj skladniki użytkownika w formacie {ingredient_id: {quantity, unit}}
   const userIngredientMap = {};
   userIngredients.forEach((ingredient) => {
     userIngredientMap[ingredient.ingredient_id] = {
@@ -122,8 +120,8 @@ async function getUserIngredients(userId) {
 
 
 router.post("/make-recipe",verifyToken, async (req, res) => {
-  const userId = req.userId; // Używamy userId z tokena
-  const { recipeId } = req.body; // Przekazujemy recipeId w ciele requestu
+  const userId = req.userId; 
+  const { recipeId } = req.body; 
  
   try {
     // Pobieramy przepis
