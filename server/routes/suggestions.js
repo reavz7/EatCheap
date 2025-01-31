@@ -7,6 +7,7 @@ const {
   Recipe,
 } = require("../models");
 const { convertUnits } = require("../utils/unitConversion");
+const { subtractIngredient } = require("../utils/unitConversion");
 const verifyToken = require("../middleware/verifyToken");
 
 router.get("/", verifyToken, async (req, res) => {
@@ -79,9 +80,16 @@ router.get("/", verifyToken, async (req, res) => {
           recipeId: recipe.id,
           recipeName: recipe.name,
           imageUrl: recipe.imageUrl, 
+          description: recipe.description,  // Dodanie opisu
+          instructions: recipe.instructions,  // Dodanie instrukcji
+          averagePreparationTime: recipe.averagePreparationTime, // Dodanie średniego czasu przygotowania
+          isVegan: recipe.isVegan,  // Dodanie informacji o wegańskości
+          isVegetarian: recipe.isVegetarian,  // Dodanie informacji o wegetariańskości
+          isGlutenFree: recipe.isGlutenFree,  // Dodanie informacji o braku glutenu
           message: `Masz wystarczające składniki, aby przygotować ten przepis!`,
         });
       }
+      
       
     }
 
@@ -119,10 +127,11 @@ async function getUserIngredients(userId) {
 }
 
 
-router.post("/make-recipe",verifyToken, async (req, res) => {
-  const userId = req.userId; 
-  const { recipeId } = req.body; 
- 
+// Router do obsługi wykonywania przepisu:
+router.post("/make-recipe", verifyToken, async (req, res) => {
+  const userId = req.userId;
+  const { recipeId } = req.body;
+
   try {
     // Pobieramy przepis
     const recipe = await Recipe.findByPk(recipeId);
@@ -146,31 +155,6 @@ router.post("/make-recipe",verifyToken, async (req, res) => {
 
     const userIngredients = await getUserIngredients(userId);
 
-    // Sprawdzamy, czy użytkownik ma wystarczająco składników
-    for (const recipeIngredient of recipeIngredients) {
-      const { ingredient_id, quantity, unit } = recipeIngredient;
-      const ingredientGroup = recipeIngredient.ingredient.group;
-
-      let requiredQuantity = quantity;
-      if (ingredientGroup !== "count") {
-        requiredQuantity = convertUnits(quantity, unit, "g");
-      }
-
-      const userIngredient = userIngredients[ingredient_id];
-      let userQuantity = userIngredient ? userIngredient.quantity : 0;
-      let userUnit = userIngredient ? userIngredient.unit : "";
-
-      if (userUnit && userUnit !== "count") {
-        userQuantity = convertUnits(userQuantity, userUnit, "g");
-      }
-
-      if (!userIngredient || userQuantity < requiredQuantity) {
-        return res.status(400).json({
-          error: "Nie masz wystarczającej ilości składników do przygotowania tego przepisu",
-        });
-      }
-    }
-
     // Jeśli użytkownik ma wystarczająco składników, odejmujemy je
     for (const recipeIngredient of recipeIngredients) {
       const { ingredient_id, quantity, unit } = recipeIngredient;
@@ -186,14 +170,19 @@ router.post("/make-recipe",verifyToken, async (req, res) => {
       let userUnit = userIngredient ? userIngredient.unit : "";
 
       if (userUnit && userUnit !== "count") {
-        userQuantity = convertUnits(userQuantity, userUnit, "g");
+        try {
+          // Odejmujemy składnik (i zamieniamy jednostki na odpowiednie)
+          userQuantity = subtractIngredient(userQuantity, userUnit, requiredQuantity, "g");
+        } catch (error) {
+          return res.status(400).json({ error: error.message });
+        }
+      } else {
+        userQuantity -= requiredQuantity;
       }
 
-      // Odejmujemy składnik
-      const newQuantity = userQuantity - requiredQuantity;
-
+      // Aktualizujemy ilość składnika użytkownika
       await UserIngredient.update(
-        { quantity: newQuantity },
+        { quantity: userQuantity },
         { where: { user_id: userId, ingredient_id: ingredient_id } }
       );
     }
@@ -206,6 +195,7 @@ router.post("/make-recipe",verifyToken, async (req, res) => {
     });
   }
 });
+
 
 
 module.exports = router;

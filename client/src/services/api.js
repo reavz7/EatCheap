@@ -207,3 +207,35 @@ export const updateUserIngredient = async (ingredientId, quantity, unit) => {
     throw new Error(errorMessage);
   }
 };
+
+
+// Pobieranie przepisów z filtrami
+export const getRecipes = async (isVegan, isVegetarian, isGlutenFree) => {
+  try {
+    const response = await axios.get(`${API_URL}/suggestions`, {
+      params: { isVegan, isVegetarian, isGlutenFree },
+      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+    });
+    console.log("Odpowiedź z backendu:", response.data); // Logujemy odpowiedź
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || 'Błąd podczas pobierania przepisów';
+    throw new Error(errorMessage);
+  }
+};
+
+
+// Wykonanie przepisu
+export const makeRecipe = async (recipeId) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/suggestions/make-recipe`,
+      { recipeId },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
+    );
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || 'Błąd podczas wykonywania przepisu';
+    throw new Error(errorMessage);
+  }
+};

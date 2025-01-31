@@ -34,7 +34,7 @@ const Navbar = () => {
       <ul className="hidden md:flex">
         <li
           className="p-4 cursor-pointer hover:text-[#ff6d00] ease-in-out duration-150"
-          onClick={() => scrollToSection("home")}
+          onClick={() => navigate("/suggestions")}
         >
           Sugestie
         </li>
@@ -77,7 +77,7 @@ const Navbar = () => {
         <ul className="p-4 uppercase">
           <li
             className="p-4 border-b hover:text-[#ff6d00] ease-in-out duration-150 border-gray-700 cursor-pointer"
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/suggestions")}
           >
             Sugestie
           </li>

@@ -6,8 +6,9 @@
 }
 
 body {
-    background-color: var(--color-gray-400);
+    background: linear-gradient(to right, #cbd5e1, #64748b);
     margin: 0; /* Usuń marginesy */
     min-height: 100vh; /* Żeby zawsze było na pełnym ekranie */
   }
+
 
