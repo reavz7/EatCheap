@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import Navbar from "../components/Navbar"
 import RecipeCard from "../components/RecipeCard"
-import FilterSidebar from "../components/FilterSidebar"
+import FilterBar from "../components/FilterBar"
 import { getRecipes } from "../services/api"
 
 const Suggestions = () => {
@@ -32,20 +32,17 @@ const Suggestions = () => {
   }, [])
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-center text-black mb-12">Twoje sugestie</h1>
         {error && <p className="text-red-600 text-center mb-8 bg-red-100 p-4 rounded-lg">{error}</p>}
-        <div className="flex gap-8">
-          <FilterSidebar onFilterChange={handleFilterChange} />
-          <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {recipes.map((recipe) => (
-                <RecipeCard key={recipe.recipeId} recipe={recipe} />
-              ))}
-            </div>
-          </div>
+
+        <FilterBar onFilterChange={handleFilterChange} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {recipes.map((recipe) => (
+            <RecipeCard key={recipe.recipeId} recipe={recipe} />
+          ))}
         </div>
       </div>
     </div>

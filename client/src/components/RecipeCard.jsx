@@ -70,7 +70,7 @@ const RecipeCard = ({ recipe }) => {
       </div>
 
       {showInstructions && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-opacity-50 border-[8px] bg-white border-black flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-8 w-full h-full max-w-4xl max-h-full overflow-y-auto">
             <h2 className="text-3xl font-bold text-black mb-4">{recipe.recipeName}</h2>
 
