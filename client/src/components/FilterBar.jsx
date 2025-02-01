@@ -1,23 +1,35 @@
-import { useState } from "react"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { useState } from "react";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 const FilterBar = ({ onFilterChange }) => {
-  const [preparationTime, setPreparationTime] = useState(60)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [preparationTime, setPreparationTime] = useState(180);
+  const [searchTerm, setSearchTerm] = useState("");
+  // Nowe stany dla checkboxów:
+  const [isVegan, setIsVegan] = useState(false);
+  const [isVegetarian, setIsVegetarian] = useState(false);
+  const [isGlutenFree, setIsGlutenFree] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value)
+  const updateFilters = (overrides = {}) => {
     if (onFilterChange) {
       onFilterChange({
-        searchTerm: e.target.value,
-        preparationTime,
-      })
+        searchTerm,
+        maxPrepTime: preparationTime,
+        isVegan: isVegan ? true : false,
+        isVegetarian: isVegetarian ? true : false,
+        isGlutenFree: isGlutenFree ? true : false,
+        ...overrides,
+      });
     }
-  }
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    updateFilters({ searchTerm: e.target.value });
+  };
 
   return (
-    <div className="w-full bg-white shadow-md rounded-lg p-4 mb-8 ">
+    <div className="w-full bg-white shadow-md rounded-lg p-4 mb-8">
       <div className="flex flex-col md:flex-row gap-4 items-center">
         {/* Search Input */}
         <div className="relative w-full md:w-1/3 text-black">
@@ -41,20 +53,17 @@ const FilterBar = ({ onFilterChange }) => {
         </button>
 
         <div className="flex items-center gap-4 w-full md:w-auto">
-          <span className="text-sm text-gray-600 whitespace-nowrap">Czas: {preparationTime} min</span>
+          <span className="text-sm text-gray-600 whitespace-nowrap">
+            Czas: {preparationTime} min
+          </span>
           <input
             type="range"
             min="0"
             max="180"
             value={preparationTime}
             onChange={(e) => {
-              setPreparationTime(e.target.value)
-              if (onFilterChange) {
-                onFilterChange({
-                  searchTerm,
-                  preparationTime: e.target.value,
-                })
-              }
+              setPreparationTime(e.target.value);
+              updateFilters({ maxPrepTime: e.target.value });
             }}
             className="w-full md:w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
@@ -66,11 +75,18 @@ const FilterBar = ({ onFilterChange }) => {
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-700">Preferencje dietetyczne</h3>
+              <h3 className="text-sm font-medium text-gray-700">
+                Preferencje dietetyczne
+              </h3>
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   name="wegetarianskie"
+                  checked={isVegetarian}
+                  onChange={(e) => {
+                    setIsVegetarian(e.target.checked);
+                    updateFilters({ isVegetarian: e.target.checked });
+                  }}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600">Wegetariańskie</span>
@@ -79,6 +95,11 @@ const FilterBar = ({ onFilterChange }) => {
                 <input
                   type="checkbox"
                   name="weganskie"
+                  checked={isVegan}
+                  onChange={(e) => {
+                    setIsVegan(e.target.checked);
+                    updateFilters({ isVegan: e.target.checked });
+                  }}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600">Wegańskie</span>
@@ -87,6 +108,11 @@ const FilterBar = ({ onFilterChange }) => {
                 <input
                   type="checkbox"
                   name="bezGlutenu"
+                  checked={isGlutenFree}
+                  onChange={(e) => {
+                    setIsGlutenFree(e.target.checked);
+                    updateFilters({ isGlutenFree: e.target.checked });
+                  }}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600">Bez glutenu</span>
@@ -96,8 +122,7 @@ const FilterBar = ({ onFilterChange }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default FilterBar
-
+export default FilterBar;

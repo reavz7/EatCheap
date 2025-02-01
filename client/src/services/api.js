@@ -212,17 +212,17 @@ export const updateUserIngredient = async (ingredientId, quantity, unit) => {
 // Pobieranie przepisów z filtrami
 export const getRecipes = async (filters) => {
   try {
-    // Mapowanie wartości boolean na format, który backend rozumie (czyli "1" dla true)
     const mappedFilters = {
+      searchTerm: filters.searchTerm, 
+      maxPrepTime: filters.maxPrepTime,
       isVegan: filters.isVegan ? "1" : undefined,
       isVegetarian: filters.isVegetarian ? "1" : undefined,
       isGlutenFree: filters.isGlutenFree ? "1" : undefined,
-      maxPrepTime: filters.maxPrepTime,
     };
 
     const response = await axios.get(`${API_URL}/suggestions`, {
       params: mappedFilters,
-      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+      headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
     });
     console.log("Odpowiedź z backendu:", response.data);
     return response.data;

@@ -1,4 +1,5 @@
 const express = require("express");
+const { Op } = require("sequelize"); // dodajemy operator Sequelize
 const router = express.Router();
 const {
   RecipeIngredient,
@@ -12,16 +13,34 @@ const verifyToken = require("../middleware/verifyToken");
 
 router.get("/", verifyToken, async (req, res) => {
   const userId = req.userId; // Używamy userId z tokena
-  const { isVegan, isVegetarian, isGlutenFree } = req.query;
+  const { isVegan, isVegetarian, isGlutenFree, maxPrepTime, searchTerm } = req.query;
 
   try {
-    const filterConditions = {};  
+    // Budujemy warunki filtrowania
+    const filterConditions = {};
+
     if (isVegan !== undefined)
       filterConditions.isVegan = isVegan === "1" ? 1 : 0;
     if (isVegetarian !== undefined)
       filterConditions.isVegetarian = isVegetarian === "1" ? 1 : 0;
     if (isGlutenFree !== undefined)
       filterConditions.isGlutenFree = isGlutenFree === "1" ? 1 : 0;
+      
+    // Filtrowanie wg. czasu przygotowania, jeżeli przekazano parametr
+    if (maxPrepTime) {
+      // Zakładam, że w bazie masz pole averagePreparationTime
+      filterConditions.averagePreparationTime = { [Op.lte]: parseInt(maxPrepTime) };
+    }
+    
+    // Filtrowanie wg. wyszukiwanego tekstu (nazwa przepisu)
+    // Filtrowanie wg. wyszukiwanego tekstu (nazwa przepisu)
+if (searchTerm) {
+  // Używamy Op.like zamiast Op.iLike, bo MySQL nie obsługuje iLike
+  filterConditions.name = { [Op.like]: `%${searchTerm}%` };
+  // Jeśli chcesz, żeby wyszukiwanie było nieczułe na wielkość liter, 
+  // możesz ustawić odpowiednią kolację w MySQL (np. utf8_general_ci)
+}
+
 
     const recipes = await Recipe.findAll({
       where: filterConditions,
@@ -29,12 +48,11 @@ router.get("/", verifyToken, async (req, res) => {
 
     if (recipes.length === 0) {
       return res.status(404).json({
-        error: "Nie znaleziono przepisów spełniających podane kryteria",
+        error: "Brak przepisów, które użytkownik może przygotować z dostępnych składników lub z wybranymi filtrami",
       });
     }
 
     const userIngredients = await getUserIngredients(userId);
-
     const possibleRecipes = [];
 
     for (const recipe of recipes) {
@@ -61,7 +79,6 @@ router.get("/", verifyToken, async (req, res) => {
         }
 
         const userIngredient = userIngredients[ingredient_id];
-
         let userQuantity = userIngredient ? userIngredient.quantity : 0;
         let userUnit = userIngredient ? userIngredient.unit : "";
 
@@ -80,23 +97,20 @@ router.get("/", verifyToken, async (req, res) => {
           recipeId: recipe.id,
           recipeName: recipe.name,
           imageUrl: recipe.imageUrl, 
-          description: recipe.description,  // Dodanie opisu
-          instructions: recipe.instructions,  // Dodanie instrukcji
-          averagePreparationTime: recipe.averagePreparationTime, // Dodanie średniego czasu przygotowania
-          isVegan: recipe.isVegan,  // Dodanie informacji o wegańskości
-          isVegetarian: recipe.isVegetarian,  // Dodanie informacji o wegetariańskości
-          isGlutenFree: recipe.isGlutenFree,  // Dodanie informacji o braku glutenu
-          message: `Masz wystarczające składniki, aby przygotować ten przepis!`,
+          description: recipe.description,
+          instructions: recipe.instructions,
+          averagePreparationTime: recipe.averagePreparationTime,
+          isVegan: recipe.isVegan,
+          isVegetarian: recipe.isVegetarian,
+          isGlutenFree: recipe.isGlutenFree,
+          message: "Masz wystarczające składniki, aby przygotować ten przepis!",
         });
       }
-      
-      
     }
 
     if (possibleRecipes.length === 0) {
       return res.status(404).json({
-        error:
-          "Brak przepisów, które użytkownik może przygotować z dostępnych składników",
+        error: "Brak przepisów, które użytkownik może przygotować z dostępnych składników lub z wybranymi filtrami",
       });
     }
 
@@ -125,7 +139,6 @@ async function getUserIngredients(userId) {
 
   return userIngredientMap;
 }
-
 
 // Router do obsługi wykonywania przepisu:
 router.post("/make-recipe", verifyToken, async (req, res) => {
