@@ -10,7 +10,7 @@ const Suggestions = () => {
   useEffect(() => {
   const fetchRecipes = async () => {
     try {
-      const filters = {
+      const filters = { 
       };
       const data = await getRecipes(filters); // przekazujesz filtry do backendu
       setRecipes(data);
@@ -27,7 +27,7 @@ const Suggestions = () => {
     <div className="min-h-screen">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-7xl font-bold text-center text-black mb-12">Twoje sugestie</h1>
+        <h1 className="text-2xl font-bold text-center text-black mb-12">Twoje sugestie</h1>
         {error && <p className="text-red-600 text-center mb-8 bg-red-100 p-4 rounded-lg">{error}</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {recipes.map((recipe) => (

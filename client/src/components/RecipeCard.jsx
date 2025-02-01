@@ -54,8 +54,8 @@ const RecipeCard = ({ recipe }) => {
       </div>
 
       {showInstructions && (
-        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white border-4 border-orange-400 rounded-xl p-4 w-full max-w-3xl max-h-[40vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-8 w-full h-full max-w-none max-h-none overflow-y-auto">
             <h2 className="text-3xl font-bold text-black mb-4">{recipe.recipeName}</h2>
             <div className="space-y-6">
               {recipe.instructions.split('\n').map((instruction, index) => (
@@ -69,9 +69,9 @@ const RecipeCard = ({ recipe }) => {
             </div>
             <button
               onClick={() => setShowInstructions(false)}
-              className="mt-8 absolute right-10 lg:top-4 md:top-24 bg-indigo-600 text-white py-2 p-4 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300"
+              className="flex justify-center mt-8  bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300"
             >
-              X
+              Zamknij
             </button>
           </div>
         </div>
