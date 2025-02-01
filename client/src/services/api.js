@@ -210,16 +210,25 @@ export const updateUserIngredient = async (ingredientId, quantity, unit) => {
 
 
 // Pobieranie przepisów z filtrami
-export const getRecipes = async (isVegan, isVegetarian, isGlutenFree) => {
+export const getRecipes = async (filters) => {
   try {
+    // Mapowanie wartości boolean na format, który backend rozumie (czyli "1" dla true)
+    const mappedFilters = {
+      isVegan: filters.isVegan ? "1" : undefined,
+      isVegetarian: filters.isVegetarian ? "1" : undefined,
+      isGlutenFree: filters.isGlutenFree ? "1" : undefined,
+      maxPrepTime: filters.maxPrepTime,
+    };
+
     const response = await axios.get(`${API_URL}/suggestions`, {
-      params: { isVegan, isVegetarian, isGlutenFree },
+      params: mappedFilters,
       headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
     });
-    console.log("Odpowiedź z backendu:", response.data); // Logujemy odpowiedź
+    console.log("Odpowiedź z backendu:", response.data);
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data?.error || 'Błąd podczas pobierania przepisów';
+    const errorMessage =
+      error.response?.data?.error || "Błąd podczas pobierania przepisów";
     throw new Error(errorMessage);
   }
 };
@@ -236,6 +245,19 @@ export const makeRecipe = async (recipeId) => {
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.error || 'Błąd podczas wykonywania przepisu';
+    throw new Error(errorMessage);
+  }
+};
+
+// Fetch ingredients for a specific recipe
+export const getRecipeIngredients = async (recipeId) => {
+  try {
+    const response = await axios.get(`${API_URL}/recipeingredients/${recipeId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+    });
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || 'Błąd podczas pobierania składników przepisu';
     throw new Error(errorMessage);
   }
 };
