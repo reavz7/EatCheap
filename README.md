@@ -3,6 +3,7 @@
   <a href="https://github.com/kamil/eatcheap"><img src="client/public/eatcheap_logo.png" alt="EatCheap" width="200"></a>
   <br>
   EatCheap
+  **Still in progress**
   <br>
 </h1>
 
