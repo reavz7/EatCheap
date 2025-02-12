@@ -113,18 +113,18 @@ const Recipes = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Image
+                  Zdjęcie
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nazwa</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
+                  Opis
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dietary Info
+                  Dieta
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <IoTimeOutline className="inline mr-1" />
-                  Prep Time
+                  Czas przygotowania
                 </th>
               </tr>
             </thead>
@@ -201,7 +201,7 @@ const Recipes = () => {
                               <div className="bg-white p-4 rounded-lg shadow-md">
                                 <h4 className="font-medium text-lg mb-3 flex items-center gap-2">
                                   <MdOutlineKitchen className="text-green-500" />
-                                  Ingredients
+                                  Składniki
                                 </h4>
                                 {loadingIngredients[recipe.id] ? (
                                   <div className="flex justify-center py-4">
@@ -219,12 +219,12 @@ const Recipes = () => {
                                     ))}
                                   </ul>
                                 ) : (
-                                  <p className="text-gray-500">No ingredients available</p>
+                                  <p className="text-gray-500">Z jakiegoś powodu, ten przepis nie posiada składników 🙅‍♂️</p>
                                 )}
                               </div>
                             </div>
                             <div className="md:w-2/3">
-                              <h3 className="font-medium text-lg mb-2">Instructions</h3>
+                              <h3 className="font-medium text-lg mb-2">Instrukcje</h3>
                               <p className="whitespace-pre-line">{recipe.instructions}</p>
                             </div>
                           </div>
