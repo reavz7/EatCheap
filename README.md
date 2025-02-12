@@ -4,6 +4,8 @@
   <br>
   EatCheap
   <br>
+  
+  **!Still in progress!**
 </h1>
 
 ![tailwind-and-vite-react](https://github.com/user-attachments/assets/b6d1a084-586a-409e-9554-39c77b7138de)
@@ -12,6 +14,9 @@
 <h4 align="center">Discover recipes that fit your ingredients and preferences</h4>
 
 ![image](https://github.com/user-attachments/assets/46b8855b-8f07-4ec7-abd4-bf67692abffb)
+![image](https://github.com/user-attachments/assets/0dc32330-065e-4958-a1cd-70fed76144a5)
+![image](https://github.com/user-attachments/assets/3b1fa3c6-3552-417e-ac97-4af36a723887)
+
 
 ## Key Features
 
