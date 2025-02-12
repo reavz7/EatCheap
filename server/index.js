@@ -17,20 +17,19 @@ app.use("/suggestions", require("./routes/suggestions"));
 // Synchronizacja w odpowiedniej kolejności
 (async () => {
   try {
-    // Synchronizacja tabel w kolejności
-    await db.User.sync({ force: false }); // Najpierw tabela Users
+    await db.User.sync({ force: false }); 
     console.log("Tabela Users zsynchronizowana.");
 
-    await db.Ingredient.sync({ force: false }); // Następnie Ingredients
+    await db.Ingredient.sync({ force: false }); 
     console.log("Tabela Ingredients zsynchronizowana.");
 
-    await db.Recipe.sync({ force: false }); // Potem Recipes
+    await db.Recipe.sync({ force: false }); 
     console.log("Tabela Recipes zsynchronizowana.");
 
-    await db.RecipeIngredient.sync({ force: false }); // Potem RecipeIngredients
+    await db.RecipeIngredient.sync({ force: false }); 
     console.log("Tabela RecipeIngredients zsynchronizowana.");
 
-    await db.UserIngredient.sync({ force: false }); // Na końcu UserIngredients
+    await db.UserIngredient.sync({ force: false }); 
     console.log("Tabela UserIngredients zsynchronizowana.");
 
     app.listen(5000, () => {

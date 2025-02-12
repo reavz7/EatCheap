@@ -79,7 +79,7 @@ const RecipeCard = ({ recipe }) => {
               {ingredients.map((item, index) => (
                 <li key={index} className="text-gray-700 text-lg">
                   {item.quantity} {item.unit} {item.ingredient.name}
-                </li>
+                </li> 
               ))}
             </ul>
 

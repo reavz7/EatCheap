@@ -4,6 +4,7 @@ import AuthForm from './pages/AuthForm';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Suggestions from './pages/Suggestions';
+import Recipes from './pages/Recipes';
 
 function App() {
   return (  
@@ -12,7 +13,8 @@ function App() {
         <Route path="/" element={<AuthForm />} />
         <Route path="/home" element={<Home />} />
         <Route path='/profile' element={<Profile />} />
-        <Route path='/suggestions' element={<Suggestions/>} />
+        <Route path='/suggestions' element={<Suggestions />} />
+        <Route path='/recipes' element={<Recipes/>} />
       </Routes>
     </Router>
     

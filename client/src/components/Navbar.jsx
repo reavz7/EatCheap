@@ -2,7 +2,7 @@ import { RiMenuLine } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Jeśli używasz React Router
-
+import { BsStars } from "react-icons/bs";
 const Navbar = () => {
   const [nav, setNav] = useState(true);
   const navigate = useNavigate();
@@ -33,14 +33,15 @@ const Navbar = () => {
       </h1>
       <ul className="hidden md:flex">
         <li
-          className="p-4 cursor-pointer hover:text-[#ff6d00] ease-in-out duration-150"
+          className="p-4 flex items-center gap-0.5 cursor-pointer hover:text-[#ff6d00] ease-in-out duration-150 text-yellow-400 "
           onClick={() => navigate("/suggestions")}
         >
           Sugestie
+          <BsStars />
         </li>
         <li
           className="p-4 cursor-pointer hover:text-[#ff6d00] ease-in-out duration-150"
-          onClick={() => scrollToSection("projects")}
+          onClick={() => navigate("/recipes")}
         >
           Przepisy
         </li>
@@ -76,14 +77,15 @@ const Navbar = () => {
         </h1>
         <ul className="p-4 uppercase">
           <li
-            className="p-4 border-b hover:text-[#ff6d00] ease-in-out duration-150 border-gray-700 cursor-pointer"
+            className="p-4 flex items-center gap-0.5 border-b hover:text-[#ff6d00] ease-in-out duration-150 border-gray-700 cursor-pointer text-yellow-400"
             onClick={() => navigate("/suggestions")}
           >
-            Sugestie
+            Sugestie 
+            <BsStars />
           </li>
           <li
             className="p-4 border-b hover:text-[#ff6d00] ease-in-out duration-150 border-gray-700 cursor-pointer"
-            onClick={() => scrollToSection("projects")}
+            onClick={() => navigate("/recipes")}
           >
             Przepisy
           </li>

@@ -261,3 +261,16 @@ export const getRecipeIngredients = async (recipeId) => {
     throw new Error(errorMessage);
   }
 };
+
+// PRZEPISY
+// Pobieranie wszystkich przepisów- bez filtrow, po prsotu CALOSC
+export const getAllRecipes = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/recipes`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Błąd podczas pobierania wszystkich przepisów');
+  }
+};
