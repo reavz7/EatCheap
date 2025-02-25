@@ -5,7 +5,7 @@
   EatCheap
   <br>
   
-  **!Still in progress!**
+  **Application for my bachelor's thesis**
 </h1>
 
 ![tailwind-and-vite-react](https://github.com/user-attachments/assets/b6d1a084-586a-409e-9554-39c77b7138de)
