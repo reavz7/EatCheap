@@ -1,0 +1,15 @@
+Jak zainstalować i włączyć aplikacje:
+
+
+1. W aplikacji XAMPP należy włączyć Apache i MySQL
+2. Kliknąć Admin w XAMMP obok MySQL i w phpmyadminie, należy stworzyć nową bazę danych "eatcheap"
+3. Następnie w Visual Studio Code należy otworzyć cały folder aplikacji
+4. Przejść do katalogu głównego za pomocą terminala wbudowanego w visual studio code: cd eatcheap
+5. Przejść do cd server i wpisać npm install
+6. Przejść do cd client i wpisać npm install
+7. Następnie w cd server należy wystartować server za pomocą komendy: npm start (ta komenda tworzy także tabele w bazie danych)
+8. Natomiast w cd client należy wystartować klienta aplikacji za pomocą komendy: npm run dev i wejść na stronę poprzez link podany w terminalu po wystartowaniu klienta
+
+WAŻNE! 9. Dane testowe DML do aplikacji znajdują się w folderze aplikacji "DML DO BAZY.txt". Za pomocą phpmyadmina zalecam, aby te dane "wrzucić" do bazy, przed testowaniem aplikacji
+
+Jeśli zaistniałyby jakieś problemy, oczywiście Panu pomogę :).

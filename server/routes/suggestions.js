@@ -146,7 +146,6 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
   const { recipeId } = req.body;
 
   try {
-    // Pobieramy przepis
     const recipe = await Recipe.findByPk(recipeId);
     if (!recipe) {
       return res.status(404).json({
@@ -154,7 +153,6 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
       });
     }
 
-    // Pobieramy składniki przepisu
     const recipeIngredients = await RecipeIngredient.findAll({
       where: { recipe_id: recipeId },
       include: [
@@ -192,12 +190,10 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
       }
 
       if (userQuantity <= 0) {
-        // Usuwamy składnik, jeśli jego ilość spadła do zera
         await UserIngredient.destroy({
           where: { user_id: userId, ingredient_id: ingredient_id }
         });
       } else {
-        // Aktualizujemy ilość składnika użytkownika
         await UserIngredient.update(
           { quantity: userQuantity },
           { where: { user_id: userId, ingredient_id: ingredient_id } }
