@@ -38,15 +38,13 @@
 To clone and run this application, you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
 
 ```bash
-# Clone this repository
-$ git clone https://github.com/reavz7/EatCheap
-
-# Go into the repository
-$ cd eatcheap
-
-# Install dependencies
-$ npm install
-
-# Run the app (frontend and backend)
-$ npm start- on server file
-$ npm run dev- on client file
+1. In the XAMPP application, turn on Apache and MySQL.
+2. Click Admin in XAMPP next to MySQL, and in phpMyAdmin, create a new database called "eatcheap".
+3. Then, open the whole application folder in Visual Studio Code.
+4. Go to the root directory using the terminal in Visual Studio Code: cd eatcheap-main.
+5. Go to cd server and type npm install.
+6. Go to cd client and type npm install.
+7. Then, in cd server, start the server using the command: npm start (this command also creates the tables in the database).
+8. In cd client, start the application client using the command: npm run dev, and go to the site using the link provided in the terminal after starting the client.
+IMPORTANT!
+9. Test data DML for the application is located in the "DML DO BAZY.txt" folder in the application. It’s recommended to import this data into the database using phpMyAdmin before testing the application.
