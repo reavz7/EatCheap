@@ -168,7 +168,6 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
 
     const userIngredients = await getUserIngredients(userId);
 
-    // Jeśli użytkownik ma wystarczająco składników, odejmujemy je
     for (const recipeIngredient of recipeIngredients) {
       const { ingredient_id, quantity, unit } = recipeIngredient;
       const ingredientGroup = recipeIngredient.ingredient.group;
@@ -184,7 +183,6 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
 
       if (userUnit && userUnit !== "count") {
         try {
-          // Odejmujemy składnik (i zamieniamy jednostki na odpowiednie)
           userQuantity = subtractIngredient(userQuantity, userUnit, requiredQuantity, "g");
         } catch (error) {
           return res.status(400).json({ error: error.message });
@@ -193,11 +191,18 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
         userQuantity -= requiredQuantity;
       }
 
-      // Aktualizujemy ilość składnika użytkownika
-      await UserIngredient.update(
-        { quantity: userQuantity },
-        { where: { user_id: userId, ingredient_id: ingredient_id } }
-      );
+      if (userQuantity <= 0) {
+        // Usuwamy składnik, jeśli jego ilość spadła do zera
+        await UserIngredient.destroy({
+          where: { user_id: userId, ingredient_id: ingredient_id }
+        });
+      } else {
+        // Aktualizujemy ilość składnika użytkownika
+        await UserIngredient.update(
+          { quantity: userQuantity },
+          { where: { user_id: userId, ingredient_id: ingredient_id } }
+        );
+      }
     }
 
     res.json({ message: "Przepis został wykonany, składniki zostały odjęte!" });
@@ -209,6 +214,5 @@ router.post("/make-recipe", verifyToken, async (req, res) => {
   }
 });
 
-
-
 module.exports = router;
+

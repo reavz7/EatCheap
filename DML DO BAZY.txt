@@ -1,0 +1,92 @@
+-- Dodanie użytkowników
+INSERT INTO Users (username, email, password, admin) VALUES
+('kamil', 'kamil@example.com', 'hashedpassword123', 1),
+('anna', 'anna@example.com', 'hashedpassword456', 0),
+('michal', 'michal@example.com', 'hashedpassword789', 0),
+('karolina', 'karolina@example.com', 'hashedpassword101', 0);
+
+-- Dodanie składników z poprawnymi grupami jednostek
+INSERT INTO Ingredients (name, `group`) VALUES
+('Mąka', 'weight'),   -- g
+('Jajko', 'count'),   -- szt
+('Mleko', 'volume'),  -- ml
+('Cukier', 'weight'), -- g
+('Masło', 'weight'),  -- g
+('Drożdże', 'weight'), -- g
+('Olej', 'volume'),   -- ml
+('Ser żółty', 'weight'), -- g
+('Pomidor', 'count'), -- szt
+('Papryka', 'count'), -- szt
+('Makaron', 'weight'), -- g
+('Mięso mielone', 'weight'), -- g
+('Cebula', 'count'), -- szt
+('Czekolada', 'weight'), -- g
+('Płatki owsiane', 'weight'), -- g
+('Banany', 'count'); -- szt
+
+-- Dodanie przepisów
+INSERT INTO Recipes (name, description, instructions, isVegan, isVegetarian, isGlutenFree, averagePreparationTime, user_id, imageUrl) VALUES
+('Naleśniki', 'Pyszne domowe naleśniki.', 'Wymieszaj składniki, usmaż na patelni.', 0, 1, 0, 20, 1, 'https://static.blwpapu.pl/upload/images/Nalesniki-pszenne/nalesniki-pszenne-blw-przepisy-header.jpg'),
+('Omlet', 'Prosty i szybki omlet.', 'Roztrzep jajka, dodaj dodatki i usmaż na patelni.', 0, 1, 1, 10, 2, 'https://img.wprost.pl/img/ten-omlet-blyskawicznie-zniknie-z-talerzy-pokochaja-go-nawet-osoby-ktore-nie-przepadaja-za-daniami-z-jajek/56/ce/e5750de4b2e5bc2baa2cc2b2d475.webp'),
+('Ciasto czekoladowe', 'Miękkie i wilgotne ciasto czekoladowe.', 'Połącz składniki, piecz w piekarniku.', 0, 1, 0, 60, 1, 'https://cdn.aniagotuje.com/pictures/articles/2018/11/164446-v-1000x1000.jpg'),
+('Chleb domowy', 'Prosty chleb do samodzielnego upieczenia.', 'Wymieszaj składniki, wyrabiaj ciasto, piecz.', 0, 1, 0, 180, 2, 'https://schroniskobukowina.pl/media/wysiwyg/gotowy_chleb_domowy.jpg'),
+('Owsianka', 'Zdrowa owsianka na śniadanie.', 'Zagotuj mleko, dodaj płatki i gotuj na małym ogniu.', 0, 1, 1, 15, 1, 'https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/F837F322-3C97-48AD-9A80-B4FE3E30215A/Derivates/B5EBFC12-24E4-4BBF-B8AE-76F51A5CD242.jpg'),
+('Makaron z sosem pomidorowym', 'Szybki i smaczny makaron.', 'Ugotuj makaron, przygotuj sos i wymieszaj.', 0, 1, 0, 25, 3, 'https://naukajedzenia.pl/wp-content/uploads/2022/06/makaron-z-sosem-pomidorowym-4-1024x768.jpg'),
+('Pizza domowa', 'Domowa pizza z serem i warzywami.', 'Przygotuj ciasto, dodaj składniki i piecz.', 0, 1, 0, 90, 4, 'https://cdn.aniagotuje.com/pictures/articles/2023/02/38768537-v-1500x1500.jpg'),
+('Banana Pancakes', 'Szybkie placuszki bananowe.', 'Zmiksuj składniki, smaż placuszki na oleju.', 0, 1, 0, 15, 1, 'https://feelgoodfoodie.net/wp-content/uploads/2025/02/Banana-Pancakes-13.jpg'),
+('Bolognese', 'Klasyczne spaghetti bolognese.', 'Podsmaż mięso, dodaj sos i podawaj z makaronem.', 0, 0, 0, 40, 3, 'https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/spaghetti_bolognese_01.jpg');
+
+-- Dodanie powiązań składników do przepisów z poprawnymi jednostkami
+INSERT INTO RecipeIngredients (recipe_id, ingredient_id, quantity, unit) VALUES
+-- Naleśniki
+(1, 1, 200, 'g'),  
+(1, 2, 2, 'szt'),  
+(1, 3, 250, 'ml'),  
+(1, 5, 50, 'g'),    
+
+-- Omlet
+(2, 2, 3, 'szt'),  
+(2, 8, 50, 'g'),   
+(2, 9, 1, 'szt'),   
+
+-- Ciasto czekoladowe
+(3, 1, 250, 'g'),  
+(3, 4, 100, 'g'),  
+(3, 5, 100, 'g'),  
+(3, 14, 100, 'g'),  
+
+-- Chleb domowy
+(4, 1, 500, 'g'),  
+(4, 6, 25, 'g'),  
+
+-- Owsianka
+(5, 3, 300, 'ml'),  
+(5, 15, 50, 'g'),  
+(5, 4, 20, 'g'),  
+
+-- Makaron z sosem pomidorowym
+(6, 11, 250, 'g'),  
+(6, 9, 2, 'szt'),  
+(6, 13, 1, 'szt'),  
+(6, 5, 10, 'g'),    
+
+-- Pizza domowa
+(7, 1, 300, 'g'),  
+(7, 6, 15, 'g'),  
+(7, 8, 100, 'g'),  
+(7, 9, 1, 'szt'),  
+(7, 10, 1, 'szt'),  
+
+-- Banana Pancakes
+(8, 2, 2, 'szt'),  
+(8, 15, 100, 'g'),  
+(8, 16, 1, 'szt'),  
+(8, 3, 100, 'ml'),  
+(8, 7, 10, 'ml'),  
+
+-- Bolognese
+(9, 11, 300, 'g'),  
+(9, 12, 200, 'g'),  
+(9, 9, 2, 'szt'),  
+(9, 13, 1, 'szt'),  
+(9, 5, 20, 'g');  
