@@ -9,6 +9,7 @@ const RecipeCard = ({ recipe }) => {
     try {
       const response = await makeRecipe(recipe.recipeId)
       alert(response.message)
+      window.location.reload();
     } catch (err) {
       alert(err.message)
     }
@@ -50,7 +51,7 @@ const RecipeCard = ({ recipe }) => {
               <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">
                 Bez glutenu
               </span>
-            )}
+            )}  
           </div>
         </div>
         <div className="flex space-x-4">
