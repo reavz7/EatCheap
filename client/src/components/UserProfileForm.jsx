@@ -41,13 +41,38 @@ const UserProfileForm = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setFormData({ email: "", hasło: "", pseudonim: "" });
+    setModalContent({ title: "", message: "" });  
+  setActiveField(""); 
   };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [activeField]: e.target.value });
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailRegex.test(email);
+  };
+  
   const handleSubmit = async () => {
+    if (activeField === "email" && !validateEmail(formData.email)) {
+      setModalContent({
+        title: "Mamy problem!",
+        message: "Wprowadź poprawny adres email, nie zapomniałeś/aś '@'?",
+      });
+      setIsModalOpen(true);
+      return;
+    }
+  
+    if (activeField === "hasło" && formData.hasło.length < 6) {
+      setModalContent({
+        title: "Mamy problem!",
+        message: "Hasło musi mieć co najmniej 6 znaków.",
+      });
+      setIsModalOpen(true);
+      return;
+    }
+  
     try {
       const dataToUpdate = { [activeField]: formData[activeField] };
       await updateUser(
@@ -76,6 +101,8 @@ const UserProfileForm = () => {
       setFormData({ email: "", hasło: "", pseudonim: "" });
     }
   };
+  
+  
 
   const renderModalContent = () => {
     if (activeField === "") return null;
@@ -88,8 +115,8 @@ const UserProfileForm = () => {
           value={formData[activeField]}
           onChange={handleInputChange}
           className="w-full p-2 border rounded"
-          placeholder={`Nowy/e ${activeField}`}
-        />
+          placeholder={`Tutaj wpisz ${activeField}`}
+        />    
         <button
           onClick={handleSubmit}
           className="w-full bg-green-500 text-white p-2 rounded hover:bg-black cursor-pointer ease-in-out duration-200"

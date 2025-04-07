@@ -102,10 +102,12 @@ export default function AuthForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength="6"
                   className="mt-1 block w-full px-3 py-2 bg-white bg-opacity-20 border border-transparent rounded-md text-black placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                   placeholder="••••••••"
                 />
               </div>
+
               <div>
                 <button
                   type="submit"

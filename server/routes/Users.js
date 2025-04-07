@@ -79,31 +79,26 @@ router.post("/login", async (req, res) => {
 router.post("/", async (req, res) => {
   const { username, email, password } = req.body;
 
-  // Walidacja danych
   if (!username || !email || !password) {
     return res.status(400).json({ error: "Nazwa użytkownika, email i hasło są wymagane" });
   }
 
-  // Sprawdzenie, czy e-mail ma poprawny format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^(?![.])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: "Niepoprawny format e-maila" });
   }
 
   try {
-    // Sprawdzanie, czy e-mail już istnieje
     const existingEmail = await User.findOne({ where: { email } });
     if (existingEmail) {
       return res.status(400).json({ error: "E-mail jest już zajęty" });
     }
 
-    // Sprawdzanie, czy nazwa użytkownika już istnieje
     const existingUsername = await User.findOne({ where: { username } });
     if (existingUsername) {
       return res.status(400).json({ error: "Nazwa użytkownika jest już zajęta" });
     }
 
-    // Jeśli e-mail i nazwa są unikalne, tworzę nowego użytkownika
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
@@ -128,42 +123,58 @@ router.post("/", async (req, res) => {
 router.get("/info", verifyToken, async (req, res) => {
   const userId = req.userId; // Pobierz ID użytkownika z tokena
   try { 
-    const userInfo = await User.findByPk(userId); // Znajdź użytkownika w bazie
-    if (!userInfo) { // Jeśli użytkownik nie istnieje
+    const userInfo = await User.findByPk(userId); 
+    if (!userInfo) { 
       return res.status(404).json({ error: "Użytkownik nie znaleziony" });
     }
     res.json({
-      user: { username: userInfo.username, email: userInfo.email }, // Zwróć dane użytkownika
+      user: { username: userInfo.username, email: userInfo.email }, 
     });
   } catch (error) {
-    res.status(500).json({ error: "Błąd serwera", details: error.message }); // Obsłuż błąd serwera
+    res.status(500).json({ error: "Błąd serwera", details: error.message }); 
   }
 });
 
 
 // Aktualizacja danych użytkownika
 router.put("/", verifyToken, async (req, res) => {
-  const userId = req.userId; // Pobierz ID użytkownika z tokena
+  const userId = req.userId; 
   const { username, email, password } = req.body;
 
   try {
-    const user = await User.findByPk(userId); // Znajdź użytkownika na podstawie ID z tokena
+    const user = await User.findByPk(userId); 
     if (!user) {
       return res.status(404).json({ error: "Użytkownik nie znaleziony" });
     }
 
-    // Przygotuj obiekt aktualizacji tylko z przesłanych pól
+    if (email) {
+      const emailRegex = /^(?![.])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Niepoprawny format e-maila" });
+      }
+
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail && existingEmail.id !== user.id) {
+        return res.status(400).json({ error: "E-mail jest już zajęty" });
+      }
+    }
+
+    if (username) {
+      const existingUsername = await User.findOne({ where: { username } });
+      if (existingUsername && existingUsername.id !== user.id) {
+        return res.status(400).json({ error: "Nazwa użytkownika jest już zajęta" });
+      }
+    }
+
     const updates = {};
     if (username) updates.username = username;
     if (email) updates.email = email;
     if (password) updates.password = await bcrypt.hash(password, 10);
 
-    // Jeśli żadne dane nie zostały przesłane
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ error: "Brak danych do aktualizacji" });
     }
 
-    // Aktualizuj użytkownika
     await user.update(updates);
 
     res.json({
